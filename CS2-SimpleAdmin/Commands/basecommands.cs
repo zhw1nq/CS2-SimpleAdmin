@@ -158,7 +158,7 @@ public partial class CS2_SimpleAdmin
     /// </summary>
     /// <param name="caller">The player issuing this command.</param>
     /// <param name="command">Command input parameters.</param>
-    [RequiresPermissions("@css/chat")]
+    [RequiresPermissions("@css/cheats")]
     [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
     public void OnAdminVoiceCommand(CCSPlayerController? caller, CommandInfo command)
     {

@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Translations;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Commands;
@@ -18,7 +18,7 @@ public partial class CS2_SimpleAdmin
     /// <param name="caller">The admin player sending the message, or null for console.</param>
     /// <param name="command">The command input containing the message.</param>
     [CommandHelper(1, "<message>")]
-    [RequiresPermissions("@css/chat")]
+    [RequiresPermissions("@css/cheats")]
     public void OnAdminToAdminSayCommand(CCSPlayerController? caller, CommandInfo command)
     {
         Helper.LogCommand(caller, command);
@@ -42,7 +42,7 @@ public partial class CS2_SimpleAdmin
     /// <param name="caller">The admin or console sending the message.</param>
     /// <param name="command">The command input containing the message.</param>
     [CommandHelper(1, "<message>")]
-    [RequiresPermissions("@css/chat")]
+    [RequiresPermissions("@css/cheats")]
     public void OnAdminCustomSayCommand(CCSPlayerController? caller, CommandInfo command)
     {
         if (command.GetCommandString[command.GetCommandString.IndexOf(' ')..].Length == 0) return;
@@ -64,7 +64,7 @@ public partial class CS2_SimpleAdmin
     /// <param name="caller">The admin or console sending the message.</param>
     /// <param name="command">The command input containing the message.</param>
     [CommandHelper(1, "<message>")]
-    [RequiresPermissions("@css/chat")]
+    [RequiresPermissions("@css/cheats")]
     public void OnAdminSayCommand(CCSPlayerController? caller, CommandInfo command)
     {
         if (command.GetCommandString[command.GetCommandString.IndexOf(' ')..].Length == 0) return;
@@ -87,7 +87,7 @@ public partial class CS2_SimpleAdmin
     /// <param name="caller">The admin or console sending the private message.</param>
     /// <param name="command">The command input containing target and message.</param>
     [CommandHelper(2, "<#userid or name> <message>")]
-    [RequiresPermissions("@css/chat")]
+    [RequiresPermissions("@css/cheats")]
     public void OnAdminPrivateSayCommand(CCSPlayerController? caller, CommandInfo command)
     {
         var callerName = caller == null ? _localizer?["sa_console"] ?? "Console" : caller.PlayerName;
@@ -118,7 +118,7 @@ public partial class CS2_SimpleAdmin
     /// <param name="caller">The admin or console sending the message.</param>
     /// <param name="command">The command input containing the message.</param>
     [CommandHelper(1, "<message>")]
-    [RequiresPermissions("@css/chat")]
+    [RequiresPermissions("@css/cheats")]
     public void OnAdminCenterSayCommand(CCSPlayerController? caller, CommandInfo command)
     {
         var utf8BytesString = Encoding.UTF8.GetBytes(command.GetCommandString[command.GetCommandString.IndexOf(' ')..]);
@@ -134,7 +134,7 @@ public partial class CS2_SimpleAdmin
     /// <param name="caller">The admin or console sending the message.</param>
     /// <param name="command">The command input containing the message.</param>
     [CommandHelper(1, "<message>")]
-    [RequiresPermissions("@css/chat")]
+    [RequiresPermissions("@css/cheats")]
     public void OnAdminHudSayCommand(CCSPlayerController? caller, CommandInfo command)
     {
         var utf8BytesString = Encoding.UTF8.GetBytes(command.GetCommandString[command.GetCommandString.IndexOf(' ')..]);

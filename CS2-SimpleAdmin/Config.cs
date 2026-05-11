@@ -318,14 +318,14 @@ public class CS2_SimpleAdminConfig : BasePluginConfig
     public bool BanIDBan { get; set; } = true;
 
     [JsonPropertyName("FreezeWhileInMenu")]
-    public bool FreezeWhileInMenu { get; set; } = false;
+    public bool FreezeWhileInMenu { get; set; } = true;
 }
 
 
 public class DatabaseConfig
 {
     [JsonPropertyName("DatabaseType")]
-    public string DatabaseType { get; set; } = "SQLite";
+    public string DatabaseType { get; set; } = "MySQL";
 
     [JsonPropertyName("SqliteFilePath")]
     public string SqliteFilePath { get; set; } = "cs2-simpleadmin.sqlite";

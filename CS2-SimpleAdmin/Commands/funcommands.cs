@@ -23,7 +23,7 @@ public partial class CS2_SimpleAdmin
         if (targets == null) return;
         var playersToTarget = targets.Players.Where(player =>
             player.IsValid &&
-            player is { IsHLTV: false, Connected: PlayerConnectedState.PlayerConnected, PlayerPawn.Value.LifeState: (int)LifeState_t.LIFE_ALIVE }).ToList();
+            player is { IsHLTV: false, Connected: PlayerConnectedState.Connected, PlayerPawn.Value.LifeState: (int)LifeState_t.LIFE_ALIVE }).ToList();
 
         playersToTarget.ForEach(player =>
         {
@@ -88,7 +88,7 @@ public partial class CS2_SimpleAdmin
 
         playersToTarget.ForEach(player =>
         {
-            if (player.Connected != PlayerConnectedState.PlayerConnected)
+            if (player.Connected != PlayerConnectedState.Connected)
                 return;
 
             if (caller!.CanTarget(player))
@@ -141,7 +141,7 @@ public partial class CS2_SimpleAdmin
     /// <param name="caller">The player issuing the freeze command.</param>
     /// <param name="command">The command input containing targets and duration.</param>
     [CommandHelper(1, "<#userid or name> [duration]")]
-    [RequiresPermissions("@css/slay")]
+    [RequiresPermissions("@css/cheats")]
     public void OnFreezeCommand(CCSPlayerController? caller, CommandInfo command)
     {
         var callerName = caller == null ? _localizer?["sa_console"] ?? "Console" : caller.PlayerName;
@@ -168,7 +168,7 @@ public partial class CS2_SimpleAdmin
     /// <param name="caller">The player issuing the resize command.</param>
     /// <param name="command">The command input containing targets and scale factor.</param>
     [CommandHelper(1, "<#userid or name> [size]")]
-    [RequiresPermissions("@css/slay")]
+    [RequiresPermissions("@css/cheats")]
     public void OnResizeCommand(CCSPlayerController? caller, CommandInfo command)
     {
         var callerName = caller == null ? _localizer?["sa_console"] ?? "Console" : caller.PlayerName;
@@ -254,7 +254,7 @@ public partial class CS2_SimpleAdmin
     /// <param name="caller">The player issuing the unfreeze command.</param>
     /// <param name="command">The command input with targets.</param>
     [CommandHelper(1, "<#userid or name>")]
-    [RequiresPermissions("@css/slay")]
+    [RequiresPermissions("@css/cheats")]
     public void OnUnfreezeCommand(CCSPlayerController? caller, CommandInfo command)
     {
         var callerName = caller == null ? _localizer?["sa_console"] ?? "Console" : caller.PlayerName;

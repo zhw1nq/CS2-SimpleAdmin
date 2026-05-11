@@ -16,7 +16,7 @@ public partial class CS2_SimpleAdmin
     /// </summary>
     /// <param name="caller">The player issuing the gag command or null for console.</param>
     /// <param name="command">The command input containing targets, time, and reason.</param>
-    [RequiresPermissions("@css/chat")]
+    [RequiresPermissions("@css/ban")]
     [CommandHelper(minArgs: 1, usage: "<#userid or name> [time in minutes/0 perm] [reason]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnGagCommand(CCSPlayerController? caller, CommandInfo command)
     {
@@ -174,7 +174,7 @@ public partial class CS2_SimpleAdmin
     /// </summary>
     /// <param name="caller">The player issuing the command or null for console.</param>
     /// <param name="command">Command input that includes SteamID, optional time, and reason.</param>
-    [RequiresPermissions("@css/chat")]
+    [RequiresPermissions("@css/ban")]
     [CommandHelper(minArgs: 1, usage: "<steamid> [time in minutes/0 perm] [reason]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnAddGagCommand(CCSPlayerController? caller, CommandInfo command)
     {
@@ -247,7 +247,7 @@ public partial class CS2_SimpleAdmin
     /// </summary>
     /// <param name="caller">The player issuing the ungag command or null for console.</param>
     /// <param name="command">Command input containing SteamID or player name and optional reason.</param>
-    [RequiresPermissions("@css/chat")]
+    [RequiresPermissions("@css/ban")]
     [CommandHelper(minArgs: 1, usage: "<steamid or name> [reason]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnUngagCommand(CCSPlayerController? caller, CommandInfo command)
     {
@@ -322,7 +322,7 @@ public partial class CS2_SimpleAdmin
     /// </summary>
     /// <param name="caller">The player issuing the mute command or null for console.</param>
     /// <param name="command">The command input containing targets, time, and reason.</param>
-    [RequiresPermissions("@css/chat")]
+    [RequiresPermissions("@css/ban")]
     [CommandHelper(minArgs: 1, usage: "<#userid or name> [time in minutes/0 perm] [reason]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnMuteCommand(CCSPlayerController? caller, CommandInfo command)
     {
@@ -439,7 +439,7 @@ public partial class CS2_SimpleAdmin
     /// </summary>
     /// <param name="caller">The player issuing the command or null for console.</param>
     /// <param name="command">Command input includes SteamID, optional time, and reason.</param>
-    [RequiresPermissions("@css/chat")]
+    [RequiresPermissions("@css/ban")]
     [CommandHelper(minArgs: 1, usage: "<steamid> [time in minutes/0 perm] [reason]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnAddMuteCommand(CCSPlayerController? caller, CommandInfo command)
     {
@@ -559,7 +559,7 @@ public partial class CS2_SimpleAdmin
     /// </summary>
     /// <param name="caller">The admin/player issuing the unmute.</param>
     /// <param name="command">The command arguments including target identifier and optional reason.</param>
-    [RequiresPermissions("@css/chat")]
+    [RequiresPermissions("@css/ban")]
     [CommandHelper(minArgs: 1, usage: "<steamid or name>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnUnmuteCommand(CCSPlayerController? caller, CommandInfo command)
     {
@@ -639,7 +639,7 @@ public partial class CS2_SimpleAdmin
     /// </summary>
     /// <param name="caller">The admin/player issuing the silence.</param>
     /// <param name="command">Command containing target, duration, and optional reason.</param>
-    [RequiresPermissions("@css/chat")]
+    [RequiresPermissions("@css/ban")]
     [CommandHelper(minArgs: 1, usage: "<#userid or name> [time in minutes/0 perm] [reason]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnSilenceCommand(CCSPlayerController? caller, CommandInfo command)
     {
@@ -758,7 +758,7 @@ public partial class CS2_SimpleAdmin
     /// </summary>
     /// <param name="caller">The player/admin issuing the command.</param>
     /// <param name="command">The command input containing SteamID, optional time, and reason.</param>
-    [RequiresPermissions("@css/chat")]
+    [RequiresPermissions("@css/ban")]
     [CommandHelper(minArgs: 1, usage: "<#userid or name> [time in minutes/0 perm] [reason]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnAddSilenceCommand(CCSPlayerController? caller, CommandInfo command)
     {
@@ -878,7 +878,7 @@ public partial class CS2_SimpleAdmin
     /// </summary>
     /// <param name="caller">Admin/player issuing the unsilence.</param>
     /// <param name="command">Command arguments with target pattern and optional reason.</param>
-    [RequiresPermissions("@css/chat")]
+    [RequiresPermissions("@css/ban")]
     [CommandHelper(minArgs: 1, usage: "<steamid or name> [reason]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnUnsilenceCommand(CCSPlayerController? caller, CommandInfo command)
     {

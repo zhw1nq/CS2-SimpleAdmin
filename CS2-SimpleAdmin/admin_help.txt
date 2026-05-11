@@ -39,32 +39,32 @@
 - css_unsilence <steamid or name> [reason]          [@css/ban]   - Bỏ silence
 
 {YELLOW}[ CHAT ADMIN ]{DEFAULT}
-- css_say <message>                                 [@css/chat]  - Nhắn tin với prefix admin (tất cả)
-- css_asay <message>                                [@css/chat]  - Nhắn tin chỉ tới admin khác
-- css_cssay <message>                               [@css/chat]  - Nhắn tin tùy chỉnh (hỗ trợ màu sắc)
-- css_psay <#userid or name> <message>              [@css/chat]  - Nhắn tin riêng tư tới người chơi
-- css_csay <message>                                [@css/chat]  - Nhắn tin ở giữa màn hình
-- css_hsay <message>                                [@css/chat]  - Nhắn tin dạng HUD alert
+- css_say <message>                                 [@css/cheats]  - Nhắn tin với prefix admin (tất cả)
+- css_asay <message>                                [@css/cheats]  - Nhắn tin chỉ tới admin khác
+- css_cssay <message>                               [@css/cheats]  - Nhắn tin tùy chỉnh (hỗ trợ màu sắc)
+- css_psay <#userid or name> <message>              [@css/cheats]  - Nhắn tin riêng tư tới người chơi
+- css_csay <message>                                [@css/cheats]  - Nhắn tin ở giữa màn hình
+- css_hsay <message>                                [@css/cheats]  - Nhắn tin dạng HUD alert
 
 {YELLOW}[ QUẢN LÝ NGƯỜI CHƠI ]{DEFAULT}
-- css_slay <#userid or name>                        [@css/slay]  - Giết người chơi
-- css_slap <#userid or name> [damage]               [@css/slay]  - Đánh người chơi (có sát thương)
-- css_freeze <#userid or name> [duration]           [@css/slay]  - Đóng băng người chơi
-- css_unfreeze <#userid or name>                    [@css/slay]  - Bỏ đóng băng người chơi
-- css_hp <#userid or name> [health]                 [@css/slay]  - Đặt máu người chơi
-- css_speed <#userid or name> [speed]               [@css/slay]  - Đặt tốc độ người chơi
-- css_gravity <#userid or name> [gravity]           [@css/slay]  - Đặt trọng lực người chơi
-- css_money <#userid or name> [money]               [@css/slay]  - Đặt tiền người chơi
-- css_strip <#userid or name>                       [@css/slay]  - Tước vũ khí người chơi
-- css_resize / css_size <#userid or name> [size]    [@css/slay]  - Thay đổi kích thước người chơi
-- css_team <#userid or name> <ct/tt/spec/swap> [-k] [@css/kick]  - Chuyển team người chơi (-k để giết khi chuyển)
-- css_rename <#userid or name> <new name>           [@css/kick]  - Đổi tên người chơi (tạm thời)
-- css_prename <#userid or name> <new name>          [@css/ban]   - Đổi tên người chơi (vĩnh viễn)
-- css_tp / css_goto <#userid or name> [destination] [@css/kick]  - Teleport tới người chơi
-- css_bring / css_tphere <#destination> [#userid...] [@css/kick] - Kéo người chơi về vị trí của mình
+- css_slay <#userid or name>                        [@css/cheats]  - Giết người chơi
+- css_slap <#userid or name> [damage]               [@css/cheats]  - Đánh người chơi (có sát thương)
+- css_freeze <#userid or name> [duration]           [@css/cheats]  - Đóng băng người chơi
+- css_unfreeze <#userid or name>                    [@css/cheats]  - Bỏ đóng băng người chơi
+- css_hp <#userid or name> [health]                 [@css/cheats]  - Đặt máu người chơi
+- css_speed <#userid or name> [speed]               [@css/cheats]  - Đặt tốc độ người chơi
+- css_gravity <#userid or name> [gravity]           [@css/cheats]  - Đặt trọng lực người chơi
+- css_money <#userid or name> [money]               [@css/cheats]  - Đặt tiền người chơi
+- css_strip <#userid or name>                       [@css/cheats]  - Tước vũ khí người chơi
+- css_resize / css_size <#userid or name> [size]    [@css/cheats]  - Thay đổi kích thước người chơi
+- css_team <#userid or name> <ct/tt/spec/swap> [-k] [@css/cheats]  - Chuyển team người chơi (-k để giết khi chuyển)
+- css_rename <#userid or name> <new name>           [@css/cheats]  - Đổi tên người chơi (tạm thời)
+- css_prename <#userid or name> <new name>          [@css/cheats]  - Đổi tên người chơi (vĩnh viễn)
+- css_tp / css_goto <#userid or name> [destination] [@css/cheats]  - Teleport tới người chơi
+- css_bring / css_tphere <#destination> [#userid...] [@css/cheats] - Kéo người chơi về vị trí của mình
 
 {YELLOW}[ CHEATS / FUN ]{DEFAULT}
-- css_give <#userid or name> <weapon>               [@css/cheats] - Cho người chơi vũ khí
+- css_give <#userid or name> <weapon>               [@css/svip] - Cho người chơi vũ khí
 - css_respawn <#userid or name>                     [@css/cheats] - Hồi sinh người chơi
 - css_noclip <#userid or name>                      [@css/cheats] - Bật/tắt noclip người chơi
 - css_godmode <#userid or name>                     [@css/cheats] - Bật/tắt chế độ bất tử người chơi

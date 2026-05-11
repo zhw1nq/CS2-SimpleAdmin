@@ -20,7 +20,7 @@ public partial class CS2_SimpleAdmin
     /// </summary>
     /// <param name="caller">Player or console issuing the command.</param>
     /// <param name="command">Command details, including targets.</param>
-    [RequiresPermissions("@css/slay")]
+    [RequiresPermissions("@css/cheats")]
     [CommandHelper(minArgs: 1, usage: "<#userid or name>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnSlayCommand(CCSPlayerController? caller, CommandInfo command)
     {
@@ -47,7 +47,7 @@ public partial class CS2_SimpleAdmin
     /// <param name="command">Optional command info for logging.</param>
     internal static void Slay(CCSPlayerController? caller, CCSPlayerController player, string? callerName = null, CommandInfo? command = null)
     {
-        if (!player.IsValid || player.Connected != PlayerConnectedState.PlayerConnected) return;
+        if (!player.IsValid || player.Connected != PlayerConnectedState.Connected) return;
         if (!caller.CanTarget(player)) return;
 
         // Set default caller name if not provided
@@ -79,7 +79,7 @@ public partial class CS2_SimpleAdmin
     /// </summary>
     /// <param name="caller">Player or console issuing the command.</param>
     /// <param name="command">Command details, including targets and weapon name.</param>
-    [RequiresPermissions("@css/cheats")]
+    [RequiresPermissions("@css/svip")]
     [CommandHelper(minArgs: 2, usage: "<#userid or name> <weapon>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnGiveCommand(CCSPlayerController? caller, CommandInfo command)
     {
@@ -102,7 +102,7 @@ public partial class CS2_SimpleAdmin
 
         playersToTarget.ForEach(player =>
         {
-            if (player.Connected != PlayerConnectedState.PlayerConnected)
+            if (player.Connected != PlayerConnectedState.Connected)
                 return;
 
             GiveWeapon(caller, player, weaponName, callerName, command);
@@ -199,7 +199,7 @@ public partial class CS2_SimpleAdmin
     /// </summary>
     /// <param name="caller">Player or console issuing the command.</param>
     /// <param name="command">Command details including targets.</param>
-    [RequiresPermissions("@css/slay")]
+    [RequiresPermissions("@css/cheats")]
     [CommandHelper(minArgs: 1, usage: "<#userid or name>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnStripCommand(CCSPlayerController? caller, CommandInfo command)
     {
@@ -235,7 +235,7 @@ public partial class CS2_SimpleAdmin
         callerName ??= caller != null ? caller.PlayerName : _localizer?["sa_console"] ?? "Console";
 
         // Check if player is valid, alive, and connected
-        if (!player.IsValid || player.PlayerPawn?.Value?.LifeState != (int)LifeState_t.LIFE_ALIVE || player.Connected != PlayerConnectedState.PlayerConnected)
+        if (!player.IsValid || player.PlayerPawn?.Value?.LifeState != (int)LifeState_t.LIFE_ALIVE || player.Connected != PlayerConnectedState.Connected)
             return;
 
         // Strip weapons from the player
@@ -262,7 +262,7 @@ public partial class CS2_SimpleAdmin
     /// </summary>
     /// <param name="caller">Admin or console issuing the command.</param>
     /// <param name="command">Command details including targets and health value.</param>
-    [RequiresPermissions("@css/slay")]
+    [RequiresPermissions("@css/cheats")]
     [CommandHelper(minArgs: 1, usage: "<#userid or name> <health>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnHpCommand(CCSPlayerController? caller, CommandInfo command)
     {
@@ -323,7 +323,7 @@ public partial class CS2_SimpleAdmin
     /// </summary>
     /// <param name="caller">Admin or console issuing the command.</param>
     /// <param name="command">Command details including targets and speed.</param>
-    [RequiresPermissions("@css/slay")]
+    [RequiresPermissions("@css/cheats")]
     [CommandHelper(minArgs: 1, usage: "<#userid or name> <speed>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnSpeedCommand(CCSPlayerController? caller, CommandInfo command)
     {
@@ -336,7 +336,7 @@ public partial class CS2_SimpleAdmin
 
         playersToTarget.ForEach(player =>
         {
-            if (player.Connected != PlayerConnectedState.PlayerConnected)
+            if (player.Connected != PlayerConnectedState.Connected)
                 return;
 
             if (caller!.CanTarget(player))
@@ -391,7 +391,7 @@ public partial class CS2_SimpleAdmin
     /// </summary>
     /// <param name="caller">Admin or console issuing the command.</param>
     /// <param name="command">Command details including targets and gravity value.</param>
-    [RequiresPermissions("@css/slay")]
+    [RequiresPermissions("@css/cheats")]
     [CommandHelper(minArgs: 1, usage: "<#userid or name> <gravity>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnGravityCommand(CCSPlayerController? caller, CommandInfo command)
     {
@@ -404,7 +404,7 @@ public partial class CS2_SimpleAdmin
 
         playersToTarget.ForEach(player =>
         {
-            if (player.Connected != PlayerConnectedState.PlayerConnected)
+            if (player.Connected != PlayerConnectedState.Connected)
                 return;
 
             if (caller!.CanTarget(player))
@@ -459,7 +459,7 @@ public partial class CS2_SimpleAdmin
     /// </summary>
     /// <param name="caller">The player/admin executing the command.</param>
     /// <param name="command">The command containing target player and money value.</param>
-    [RequiresPermissions("@css/slay")]
+    [RequiresPermissions("@css/cheats")]
     [CommandHelper(minArgs: 1, usage: "<#userid or name> <money>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnMoneyCommand(CCSPlayerController? caller, CommandInfo command)
     {
@@ -473,7 +473,7 @@ public partial class CS2_SimpleAdmin
 
         playersToTarget.ForEach(player =>
         {
-            if (player.Connected != PlayerConnectedState.PlayerConnected)
+            if (player.Connected != PlayerConnectedState.Connected)
                 return;
 
             if (caller!.CanTarget(player))
@@ -523,7 +523,7 @@ public partial class CS2_SimpleAdmin
     /// </summary>
     /// <param name="caller">The player/admin executing the slap command.</param>
     /// <param name="command">The command including targets and optional damage value.</param>
-    [RequiresPermissions("@css/slay")]
+    [RequiresPermissions("@css/cheats")]
     [CommandHelper(minArgs: 1, usage: "<#userid or name> [damage]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnSlapCommand(CCSPlayerController? caller, CommandInfo command)
     {
@@ -541,7 +541,7 @@ public partial class CS2_SimpleAdmin
 
         playersToTarget.ForEach(player =>
         {
-            if (player.Connected != PlayerConnectedState.PlayerConnected)
+            if (player.Connected != PlayerConnectedState.Connected)
                 return;
 
             if (caller!.CanTarget(player))
@@ -594,7 +594,7 @@ public partial class CS2_SimpleAdmin
     /// </summary>
     /// <param name="caller">The player/admin issuing the command.</param>
     /// <param name="command">The command containing targets, team info, and optional kill flag.</param>
-    [RequiresPermissions("@css/kick")]
+    [RequiresPermissions("@css/cheats")]
     [CommandHelper(minArgs: 2, usage: "<#userid or name> [<ct/tt/spec>] [-k]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnTeamCommand(CCSPlayerController? caller, CommandInfo command)
     {
@@ -655,7 +655,7 @@ public partial class CS2_SimpleAdmin
     internal static void ChangeTeam(CCSPlayerController? caller, CCSPlayerController player, string teamName, CsTeam teamNum, bool kill, CommandInfo? command = null)
     {
         // Check if the player is valid and connected
-        if (!player.IsValid || player.Connected != PlayerConnectedState.PlayerConnected)
+        if (!player.IsValid || player.Connected != PlayerConnectedState.Connected)
             return;
 
         // Ensure the caller can target the player
@@ -705,7 +705,7 @@ public partial class CS2_SimpleAdmin
     /// <param name="caller">The admin issuing the rename command.</param>
     /// <param name="command">The command including targets and new name.</param>
     [CommandHelper(1, "<#userid or name> <new name>")]
-    [RequiresPermissions("@css/kick")]
+    [RequiresPermissions("@css/cheats")]
     public void OnRenameCommand(CCSPlayerController? caller, CommandInfo command)
     {
         // Set default caller name if not provided
@@ -732,7 +732,7 @@ public partial class CS2_SimpleAdmin
         playersToTarget.ForEach(player =>
         {
             // Check if the player is connected and can be targeted
-            if (player.Connected != PlayerConnectedState.PlayerConnected || !caller!.CanTarget(player))
+            if (player.Connected != PlayerConnectedState.Connected || !caller!.CanTarget(player))
                 return;
 
             // Determine message key and arguments for the rename notification
@@ -755,7 +755,7 @@ public partial class CS2_SimpleAdmin
     /// <param name="caller">The admin issuing the pre-rename command.</param>
     /// <param name="command">The command containing targets and new alias.</param>
     [CommandHelper(1, "<#userid or name> <new name>")]
-    [RequiresPermissions("@css/ban")]
+    [RequiresPermissions("@css/cheats")]
     public void OnPrenameCommand(CCSPlayerController? caller, CommandInfo command)
     {
         // Set default caller name if not provided
@@ -778,7 +778,7 @@ public partial class CS2_SimpleAdmin
         playersToTarget.ForEach(player =>
         {
             // Check if the player is connected and can be targeted
-            if (player.Connected != PlayerConnectedState.PlayerConnected || !caller!.CanTarget(player))
+            if (player.Connected != PlayerConnectedState.Connected || !caller!.CanTarget(player))
                 return;
 
             // Determine message key and arguments for the rename notification
@@ -821,7 +821,7 @@ public partial class CS2_SimpleAdmin
 
         playersToTarget.ForEach(player =>
         {
-            if (player.Connected != PlayerConnectedState.PlayerConnected)
+            if (player.Connected != PlayerConnectedState.Connected)
                 return;
 
             if (caller!.CanTarget(player))
@@ -878,7 +878,7 @@ public partial class CS2_SimpleAdmin
     /// <param name="caller">Admin issuing teleport command.</param>
     /// <param name="command">Command containing teleport targets and destination.</param>
     [CommandHelper(1, "<#userid or name> [#userid or name]")]
-    [RequiresPermissions("@css/kick")]
+    [RequiresPermissions("@css/cheats")]
     public void OnGotoCommand(CCSPlayerController? caller, CommandInfo command)
     {
         IEnumerable<CCSPlayerController> playersToTeleport;
@@ -895,7 +895,7 @@ public partial class CS2_SimpleAdmin
                 return;
 
             destinationPlayer = targets.Players.FirstOrDefault(p =>
-                p is { IsValid: true, IsHLTV: false, Connected: PlayerConnectedState.PlayerConnected, PlayerPawn.Value.LifeState: (int)LifeState_t.LIFE_ALIVE });
+                p is { IsValid: true, IsHLTV: false, Connected: PlayerConnectedState.Connected, PlayerPawn.Value.LifeState: (int)LifeState_t.LIFE_ALIVE });
 
             if (destinationPlayer == null || !caller.CanTarget(destinationPlayer) || caller.PlayerPawn.Value == null)
                 return;
@@ -915,7 +915,7 @@ public partial class CS2_SimpleAdmin
                 return;
 
             playersToTeleport = targets.Players
-                .Where(p => p is { IsValid: true, IsHLTV: false, Connected: PlayerConnectedState.PlayerConnected, PlayerPawn.Value.LifeState: (int)LifeState_t.LIFE_ALIVE } && caller.CanTarget(p))
+                .Where(p => p is { IsValid: true, IsHLTV: false, Connected: PlayerConnectedState.Connected, PlayerPawn.Value.LifeState: (int)LifeState_t.LIFE_ALIVE } && caller.CanTarget(p))
                 .ToList();
 
             if (!playersToTeleport.Any())
@@ -974,7 +974,7 @@ public partial class CS2_SimpleAdmin
     /// <param name="caller">Player issuing the bring command.</param>
     /// <param name="command">Command containing the destination and targets.</param>
     [CommandHelper(1, "<#destination or name> [#userid or name...]")]
-    [RequiresPermissions("@css/kick")]
+    [RequiresPermissions("@css/cheats")]
     public void OnBringCommand(CCSPlayerController? caller, CommandInfo command)
     {
         IEnumerable<CCSPlayerController> playersToTeleport;
@@ -992,7 +992,7 @@ public partial class CS2_SimpleAdmin
             destinationPlayer = caller;
 
             playersToTeleport = targets.Players
-                .Where(p => p is { IsValid: true, IsHLTV: false, Connected: PlayerConnectedState.PlayerConnected, PlayerPawn.Value.LifeState: (int)LifeState_t.LIFE_ALIVE } && caller.CanTarget(p))
+                .Where(p => p is { IsValid: true, IsHLTV: false, Connected: PlayerConnectedState.Connected, PlayerPawn.Value.LifeState: (int)LifeState_t.LIFE_ALIVE } && caller.CanTarget(p))
                 .ToList();
         }
         else
@@ -1002,7 +1002,7 @@ public partial class CS2_SimpleAdmin
                 return;
 
             destinationPlayer = destination.Players.FirstOrDefault(p =>
-                p is { IsValid: true, IsHLTV: false, Connected: PlayerConnectedState.PlayerConnected, PlayerPawn.Value.LifeState: (int)LifeState_t.LIFE_ALIVE });
+                p is { IsValid: true, IsHLTV: false, Connected: PlayerConnectedState.Connected, PlayerPawn.Value.LifeState: (int)LifeState_t.LIFE_ALIVE });
 
             if (destinationPlayer == null)
                 return;
@@ -1013,7 +1013,7 @@ public partial class CS2_SimpleAdmin
                 return;
 
             playersToTeleport = targets.Players
-                .Where(p => p is { IsValid: true, IsHLTV: false, Connected: PlayerConnectedState.PlayerConnected, PlayerPawn.Value.LifeState: (int)LifeState_t.LIFE_ALIVE } && caller!.CanTarget(p))
+                .Where(p => p is { IsValid: true, IsHLTV: false, Connected: PlayerConnectedState.Connected, PlayerPawn.Value.LifeState: (int)LifeState_t.LIFE_ALIVE } && caller!.CanTarget(p))
                 .ToList();
         }
 
@@ -1087,7 +1087,7 @@ public partial class CS2_SimpleAdmin
     //     Helper.LogCommand(caller, command);
     //
     //     // Process each player to teleport
-    //     foreach (var player in playersToTarget.Where(player => player is { Connected: PlayerConnectedState.PlayerConnected, PlayerPawn.Value.LifeState: (int)LifeState_t.LIFE_ALIVE }).Where(caller.CanTarget))
+    //     foreach (var player in playersToTarget.Where(player => player is { Connected: PlayerConnectedState.Connected, PlayerPawn.Value.LifeState: (int)LifeState_t.LIFE_ALIVE }).Where(caller.CanTarget))
     //     {
     //         if (caller.PlayerPawn.Value == null || player.PlayerPawn.Value == null)
     //             continue;

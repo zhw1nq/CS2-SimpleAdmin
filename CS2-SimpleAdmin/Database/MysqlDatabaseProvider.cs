@@ -253,6 +253,11 @@ public class MySqlDatabaseProvider(string connectionString) : IDatabaseProvider
                """;
     }
 
+    public string GetExpireOldPlayerIpsQuery()
+    {
+        return "DELETE FROM sa_players_ips WHERE used_at <= @ipBansTime";
+    }
+
     public string GetUnbanRetrieveBansQuery(bool multiServer)
     {
         return multiServer
