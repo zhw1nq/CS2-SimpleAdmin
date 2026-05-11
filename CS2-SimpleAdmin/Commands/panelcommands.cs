@@ -1,4 +1,4 @@
-return
+// return
 
 // using CounterStrikeSharp.API;
 // using CounterStrikeSharp.API.Core;

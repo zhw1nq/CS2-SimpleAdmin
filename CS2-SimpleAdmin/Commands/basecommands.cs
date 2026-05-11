@@ -536,7 +536,7 @@ public partial class CS2_SimpleAdmin
     /// <param name="caller">The player issuing the hide command.</param>
     /// <param name="command">Command input parameters.</param>
     [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
-    [RequiresPermissions("@css/kick")]
+    [RequiresPermissions("@css/cheats")]
     public void OnHideCommand(CCSPlayerController? caller, CommandInfo command)
     {
         if (caller == null) return;
@@ -1190,7 +1190,7 @@ public partial class CS2_SimpleAdmin
     /// </summary>
     /// <param name="caller">The player or console initiating the restart.</param>
     /// <param name="command">The restart command info.</param>
-    [RequiresPermissions("@css/generic")]
+    [RequiresPermissions("@css/cheats")]
     [CommandHelper(minArgs: 0, usage: "", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnRestartCommand(CCSPlayerController? caller, CommandInfo command)
     {

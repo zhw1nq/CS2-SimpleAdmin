@@ -3,48 +3,48 @@
 {GREEN}========================================{DEFAULT}
 
 {YELLOW}[ THÔNG TIN NGƯỜI CHƠI ]{DEFAULT}
-- css_who <#userid or name>            [@css/generic]  - Hiển thị thông tin chi tiết về người chơi
-- css_players [-json] [-duplicate]     [@css/generic]  - Hiển thị danh sách người chơi đang online
-- css_disconnected / css_last          [@css/kick]     - Hiển thị danh sách người chơi vừa thoát
-- css_penalties [#userid or name]      [Không cần]     - Xem hình phạt của bản thân hoặc người chơi khác
-- css_warns <#userid or name>          [@css/kick]     - Xem cảnh báo của người chơi
+- css_who <#userid or name>                                    [@css/generic]    - Hiển thị thông tin chi tiết về người chơi
+- css_players [-json] [-duplicate]                             [@css/generic]    - Hiển thị danh sách người chơi đang online
+- css_disconnected / css_last                                  [@css/kick]       - Hiển thị danh sách người chơi vừa thoát
+- css_penalties [#userid or name]                              [Không cần]       - Xem hình phạt của bản thân hoặc người chơi khác
+- css_warns <#userid or name>                                  [@css/kick]       - Xem cảnh báo của người chơi
 
 {YELLOW}[ BAN / UNBAN ]{DEFAULT}
-- css_ban <#userid or name> [time] [reason]         [@css/ban]   - Ban người chơi đang online
-- css_addban <steamid> [time] [reason]              [@css/ban]   - Ban người chơi qua SteamID64
-- css_banip <ip> [time] [reason]                    [@css/ban]   - Ban người chơi qua địa chỉ IP
-- css_unban <steamid or name or ip> [reason]        [@css/unban] - Bỏ ban người chơi
+- css_ban <#userid or name> [time] [reason]                    [@css/ban]        - Ban người chơi đang online
+- css_addban <steamid> [time] [reason]                         [@css/ban]        - Ban người chơi qua SteamID64
+- css_banip <ip> [time] [reason]                               [@css/ban]        - Ban người chơi qua địa chỉ IP
+- css_unban <steamid or name or ip> [reason]                   [@css/unban]      - Bỏ ban người chơi
   (time: số phút, 0 = vĩnh viễn. Yêu cầu @css/permban để ban vĩnh viễn)
 
 {YELLOW}[ CẢNH CÁO ]{DEFAULT}
-- css_warn <#userid or name> [time] [reason]        [@css/kick]  - Cảnh cáo người chơi
-- css_unwarn <steamid or name or ip>                [@css/kick]  - Xóa cảnh cáo người chơi
+- css_warn <#userid or name> [time] [reason]                   [@css/kick]       - Cảnh cáo người chơi
+- css_unwarn <steamid or name or ip>                           [@css/kick]       - Xóa cảnh cáo người chơi
 
 {YELLOW}[ KICK ]{DEFAULT}
-- css_kick <#userid or name> [reason]               [@css/kick]  - Kick người chơi
+- css_kick <#userid or name> [reason]                          [@css/kick]       - Kick người chơi
 
 {YELLOW}[ GAG (CẤM CHAT) ]{DEFAULT}
-- css_gag <#userid or name> [time] [reason]         [@css/ban]   - Cấm chat văn bản
-- css_addgag <steamid> [time] [reason]              [@css/ban]   - Cấm chat qua SteamID64
-- css_ungag <steamid or name> [reason]              [@css/ban]   - Bỏ cấm chat
+- css_gag <#userid or name> [time] [reason]                    [@css/ban]        - Cấm chat văn bản
+- css_addgag <steamid> [time] [reason]                         [@css/ban]        - Cấm chat qua SteamID64
+- css_ungag <steamid or name> [reason]                         [@css/ban]        - Bỏ cấm chat
 
 {YELLOW}[ MUTE (CẤM VOICE) ]{DEFAULT}
-- css_mute <#userid or name> [time] [reason]        [@css/ban]   - Cấm nói chuyện voice
-- css_addmute <steamid> [time] [reason]             [@css/ban]   - Cấm voice qua SteamID64
-- css_unmute <steamid or name>                      [@css/ban]   - Bỏ cấm voice
+- css_mute <#userid or name> [time] [reason]                   [@css/ban]        - Cấm nói chuyện voice
+- css_addmute <steamid> [time] [reason]                        [@css/ban]        - Cấm voice qua SteamID64
+- css_unmute <steamid or name>                                 [@css/ban]        - Bỏ cấm voice
 
 {YELLOW}[ SILENCE (CẤM CẢ CHAT VÀ VOICE) ]{DEFAULT}
-- css_silence <#userid or name> [time] [reason]     [@css/ban]   - Cấm cả chat và voice
-- css_addsilence <steamid> [time] [reason]          [@css/ban]   - Cấm silence qua SteamID64
-- css_unsilence <steamid or name> [reason]          [@css/ban]   - Bỏ silence
+- css_silence <#userid or name> [time] [reason]                [@css/ban]        - Cấm cả chat và voice
+- css_addsilence <steamid> [time] [reason]                     [@css/ban]        - Cấm silence qua SteamID64
+- css_unsilence <steamid or name> [reason]                     [@css/ban]        - Bỏ silence
 
 {YELLOW}[ CHAT ADMIN ]{DEFAULT}
-- css_say <message>                                 [@css/cheats]  - Nhắn tin với prefix admin (tất cả)
-- css_asay <message>                                [@css/cheats]  - Nhắn tin chỉ tới admin khác
-- css_cssay <message>                               [@css/cheats]  - Nhắn tin tùy chỉnh (hỗ trợ màu sắc)
-- css_psay <#userid or name> <message>              [@css/cheats]  - Nhắn tin riêng tư tới người chơi
-- css_csay <message>                                [@css/cheats]  - Nhắn tin ở giữa màn hình
-- css_hsay <message>                                [@css/cheats]  - Nhắn tin dạng HUD alert
+- css_say <message>                                            [@css/cheats]     - Nhắn tin với prefix admin (tất cả)
+- css_asay <message>                                           [@css/cheats]     - Nhắn tin chỉ tới admin khác
+- css_cssay <message>                                          [@css/cheats]     - Nhắn tin tùy chỉnh (hỗ trợ màu sắc)
+- css_psay <#userid or name> <message>                         [@css/cheats]     - Nhắn tin riêng tư tới người chơi
+- css_csay <message>                                           [@css/cheats]     - Nhắn tin ở giữa màn hình
+- css_hsay <message>                                           [@css/cheats]     - Nhắn tin dạng HUD alert
 
 {YELLOW}[ QUẢN LÝ NGƯỜI CHƠI ]{DEFAULT}
 - css_slay <#userid or name>                        [@css/cheats]  - Giết người chơi
@@ -64,38 +64,38 @@
 - css_bring / css_tphere <#destination> [#userid...] [@css/cheats] - Kéo người chơi về vị trí của mình
 
 {YELLOW}[ CHEATS / FUN ]{DEFAULT}
-- css_give <#userid or name> <weapon>               [@css/svip] - Cho người chơi vũ khí
-- css_respawn <#userid or name>                     [@css/cheats] - Hồi sinh người chơi
-- css_noclip <#userid or name>                      [@css/cheats] - Bật/tắt noclip người chơi
-- css_godmode <#userid or name>                     [@css/cheats] - Bật/tắt chế độ bất tử người chơi
+- css_give <#userid or name> <weapon>                          [@css/svip]       - Cho người chơi vũ khí
+- css_respawn <#userid or name>                                [@css/cheats]     - Hồi sinh người chơi
+- css_noclip <#userid or name>                                 [@css/cheats]     - Bật/tắt noclip người chơi
+- css_godmode <#userid or name>                                [@css/cheats]     - Bật/tắt chế độ bất tử người chơi
 
 {YELLOW}[ VOICE ADMIN ]{DEFAULT}
-- css_adminvoice / css_listenall                    [@css/chat]  - Bật/tắt nghe tất cả voice người chơi
-- css_hidecomms                                     [@css/kick]  - Ẩn/hiện thông báo phạt khi người chơi vào server
+- css_adminvoice / css_listenall                               [@css/cheats]     - Bật/tắt nghe tất cả voice người chơi
+- css_hidecomms                                                [@css/kick]       - Ẩn/hiện thông báo phạt khi người chơi vào server
 
 {YELLOW}[ BẢN ĐỒ ]{DEFAULT}
-- css_map <mapname>                                 [@css/changemap] - Đổi bản đồ thường
-- css_wsmap / css_workshop <name or id>             [@css/changemap] - Đổi bản đồ Workshop
-- css_rr / css_restart / css_restartgame            [@css/generic]   - Khởi động lại trận đấu
+- css_map <mapname>                                            [@css/changemap]  - Đổi bản đồ thường
+- css_wsmap / css_workshop <name or id>                        [@css/changemap]  - Đổi bản đồ Workshop
+- css_rr / css_restart / css_restartgame                       [@css/cheats]     - Khởi động lại trận đấu
 
 {YELLOW}[ SERVER ]{DEFAULT}
-- css_cvar <cvar> <value>                           [@css/cvar]  - Thay đổi giá trị cvar server
-- css_rcon <command>                                [@css/rcon]  - Thực thi lệnh RCON
+- css_cvar <cvar> <value>                                      [@css/cvar]       - Thay đổi giá trị cvar server
+- css_rcon <command>                                           [@css/rcon]       - Thực thi lệnh RCON
 
 {YELLOW}[ BÌNH CHỌN ]{DEFAULT}
-- css_vote <question> [answer1] [answer2] ...       [@css/generic] - Tạo bình chọn cho người chơi
+- css_vote <question> [answer1] [answer2] ...                  [@css/generic]    - Tạo bình chọn cho người chơi
 
 {YELLOW}[ QUẢN LÝ ADMIN ]{DEFAULT}
-- css_admin                                         [@css/generic] - Mở menu admin
-- css_adminhelp                                     [@css/generic] - Hiển thị danh sách lệnh này
-- css_hide / css_stealth                            [@css/kick]    - Ẩn/hiện bản thân khỏi danh sách người chơi
-- css_addadmin <steamid> <name> <flags> <immunity> [duration]  [@css/root] - Thêm admin mới
-- css_deladmin <steamid> [-g]                       [@css/root]    - Xóa admin
-- css_addgroup <#group_name> <flags> <immunity> [-g] [@css/root]   - Thêm nhóm admin
-- css_delgroup <#group_name> [-g]                   [@css/root]    - Xóa nhóm admin
-- css_reloadadmins                                  [@css/root]    - Tải lại danh sách admin từ database
-- css_reloadbans                                    [@css/root]    - Tải lại danh sách ban
-- css_pluginsmanager / css_pluginmanager            [@css/root]    - Quản lý plugins (load/unload)
+- css_admin                                                    [@css/generic]    - Mở menu admin
+- css_adminhelp                                                [@css/generic]    - Hiển thị danh sách lệnh này
+- css_hide / css_stealth                                       [@css/cheats]     - Ẩn/hiện bản thân khỏi danh sách người chơi
+- css_addadmin <steamid> <name> <flags> <immunity> [duration]  [@css/root]       - Thêm admin mới
+- css_deladmin <steamid> [-g]                                  [@css/root]       - Xóa admin
+- css_addgroup <#group_name> <flags> <immunity> [-g]           [@css/root]       - Thêm nhóm admin
+- css_delgroup <#group_name> [-g]                              [@css/root]       - Xóa nhóm admin
+- css_reloadadmins                                             [@css/root]       - Tải lại danh sách admin từ database
+- css_reloadbans                                               [@css/root]       - Tải lại danh sách ban
+- css_pluginsmanager / css_pluginmanager                       [@css/root]       - Quản lý plugins (load/unload)
 
 {YELLOW}[ QUYỀN HẠN ĐẶC BIỆT ]{DEFAULT}
   @css/permban  - Được phép ban vĩnh viễn
