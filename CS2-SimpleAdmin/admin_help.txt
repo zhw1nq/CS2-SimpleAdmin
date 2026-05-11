@@ -1,39 +1,107 @@
-{GREEN}[ CS2-SimpleAdmin HELP ]{DEFAULT}
-- css_who <#userid or name>  - Display informations about player
-- css_players - Display player list
-- css_ban <#userid or name> [time in minutes/0 perm] [reason] - Ban player
-- css_addban <steamid> [time in minutes/0 perm] [reason] - Ban player via steamid64
-- css_banip <ip> [time in minutes/0 perm] [reason] - Ban player via IP address
-- css_unban <steamid or name or ip> - Unban player
-- css_kick <#userid or name> [reason] - Kick player
-- css_gag <#userid or name> [time in minutes/0 perm] [reason] - Gag player
-- css_addgag <steamid> [time in minutes/0 perm] [reason] - Gag player via steamid64
-- css_unmute <steamid or name> - Ungag player
-- css_mute <#userid or name> [time in minutes/0 perm] [reason] - Mute player
-- css_addmute <steamid> [time in minutes/0 perm] [reason] - Mute player via steamid64
-- css_give <#userid or name> <weapon> - Give player a weapon
-- css_strip <#userid or name> <weapon> - Takes all of the player weapons
-- css_hp <#userid or name> [health] - Set player health
-- css_speed <#userid or name> [speed] - Set player speed
-- css_gravity <#userid or name> [gravity] - Set player gravity
-- css_money <#userid or name> [money] - Set player money
-- css_god <#userid or name> - Toggle player godmode
-- css_slay <#userid or name> - Kill player
-- css_slap <#userid or name> [damage] - Slap player
-- css_vote <'Question?'> ['Answer1'] ['Answer2'] ... - Create vote
-- css_map <mapname> - Change map
-- css_wsmap <name or id> - Change workshop map
-- css_asay <message> - Say message to all admins
-- css_say <message> - Say message as admin in chat
-- css_psay <#userid or name> <message> - Sends private message to player
-- css_csay <message> - Say message as admin in center
-- css_hsay <message> - Say message as admin in hud
-- css_noclip <#userid or name> - Toggle noclip for player
-- css_freeze <#userid or name> [duration] - Freeze player
-- css_unfreeze <#userid or name> - Unfreeze player
-- css_respawn <#userid or name> - Respawn player
-- css_cvar <cvar> <value> - Change cvar value
-- css_rcon <command> - Run command as server
+{GREEN}========================================{DEFAULT}
+{GREEN}       CS2-SimpleAdmin - HELP           {DEFAULT}
+{GREEN}========================================{DEFAULT}
 
-{Green}This is a sample admin_help.txt file
-{LightRed}Write all useful information for admins here
+{YELLOW}[ THÔNG TIN NGƯỜI CHƠI ]{DEFAULT}
+- css_who <#userid or name>            [@css/generic]  - Hiển thị thông tin chi tiết về người chơi
+- css_players [-json] [-duplicate]     [@css/generic]  - Hiển thị danh sách người chơi đang online
+- css_disconnected / css_last          [@css/kick]     - Hiển thị danh sách người chơi vừa thoát
+- css_penalties [#userid or name]      [Không cần]     - Xem hình phạt của bản thân hoặc người chơi khác
+- css_warns <#userid or name>          [@css/kick]     - Xem cảnh báo của người chơi
+
+{YELLOW}[ BAN / UNBAN ]{DEFAULT}
+- css_ban <#userid or name> [time] [reason]         [@css/ban]   - Ban người chơi đang online
+- css_addban <steamid> [time] [reason]              [@css/ban]   - Ban người chơi qua SteamID64
+- css_banip <ip> [time] [reason]                    [@css/ban]   - Ban người chơi qua địa chỉ IP
+- css_unban <steamid or name or ip> [reason]        [@css/unban] - Bỏ ban người chơi
+  (time: số phút, 0 = vĩnh viễn. Yêu cầu @css/permban để ban vĩnh viễn)
+
+{YELLOW}[ CẢNH CÁO ]{DEFAULT}
+- css_warn <#userid or name> [time] [reason]        [@css/kick]  - Cảnh cáo người chơi
+- css_unwarn <steamid or name or ip>                [@css/kick]  - Xóa cảnh cáo người chơi
+
+{YELLOW}[ KICK ]{DEFAULT}
+- css_kick <#userid or name> [reason]               [@css/kick]  - Kick người chơi
+
+{YELLOW}[ GAG (CẤM CHAT) ]{DEFAULT}
+- css_gag <#userid or name> [time] [reason]         [@css/chat]  - Cấm chat văn bản
+- css_addgag <steamid> [time] [reason]              [@css/chat]  - Cấm chat qua SteamID64
+- css_ungag <steamid or name> [reason]              [@css/chat]  - Bỏ cấm chat
+
+{YELLOW}[ MUTE (CẤM VOICE) ]{DEFAULT}
+- css_mute <#userid or name> [time] [reason]        [@css/chat]  - Cấm nói chuyện voice
+- css_addmute <steamid> [time] [reason]             [@css/chat]  - Cấm voice qua SteamID64
+- css_unmute <steamid or name>                      [@css/chat]  - Bỏ cấm voice
+
+{YELLOW}[ SILENCE (CẤM CẢ CHAT VÀ VOICE) ]{DEFAULT}
+- css_silence <#userid or name> [time] [reason]     [@css/chat]  - Cấm cả chat và voice
+- css_addsilence <steamid> [time] [reason]          [@css/chat]  - Cấm silence qua SteamID64
+- css_unsilence <steamid or name> [reason]          [@css/chat]  - Bỏ silence
+
+{YELLOW}[ CHAT ADMIN ]{DEFAULT}
+- css_say <message>                                 [@css/chat]  - Nhắn tin với prefix admin (tất cả)
+- css_asay <message>                                [@css/chat]  - Nhắn tin chỉ tới admin khác
+- css_cssay <message>                               [@css/chat]  - Nhắn tin tùy chỉnh (hỗ trợ màu sắc)
+- css_psay <#userid or name> <message>              [@css/chat]  - Nhắn tin riêng tư tới người chơi
+- css_csay <message>                                [@css/chat]  - Nhắn tin ở giữa màn hình
+- css_hsay <message>                                [@css/chat]  - Nhắn tin dạng HUD alert
+
+{YELLOW}[ QUẢN LÝ NGƯỜI CHƠI ]{DEFAULT}
+- css_slay <#userid or name>                        [@css/slay]  - Giết người chơi
+- css_slap <#userid or name> [damage]               [@css/slay]  - Đánh người chơi (có sát thương)
+- css_freeze <#userid or name> [duration]           [@css/slay]  - Đóng băng người chơi
+- css_unfreeze <#userid or name>                    [@css/slay]  - Bỏ đóng băng người chơi
+- css_hp <#userid or name> [health]                 [@css/slay]  - Đặt máu người chơi
+- css_speed <#userid or name> [speed]               [@css/slay]  - Đặt tốc độ người chơi
+- css_gravity <#userid or name> [gravity]           [@css/slay]  - Đặt trọng lực người chơi
+- css_money <#userid or name> [money]               [@css/slay]  - Đặt tiền người chơi
+- css_strip <#userid or name>                       [@css/slay]  - Tước vũ khí người chơi
+- css_resize / css_size <#userid or name> [size]    [@css/slay]  - Thay đổi kích thước người chơi
+- css_team <#userid or name> <ct/tt/spec/swap> [-k] [@css/kick]  - Chuyển team người chơi (-k để giết khi chuyển)
+- css_rename <#userid or name> <new name>           [@css/kick]  - Đổi tên người chơi (tạm thời)
+- css_prename <#userid or name> <new name>          [@css/ban]   - Đổi tên người chơi (vĩnh viễn)
+- css_tp / css_goto <#userid or name> [destination] [@css/kick]  - Teleport tới người chơi
+- css_bring / css_tphere <#destination> [#userid...] [@css/kick] - Kéo người chơi về vị trí của mình
+
+{YELLOW}[ CHEATS / FUN ]{DEFAULT}
+- css_give <#userid or name> <weapon>               [@css/cheats] - Cho người chơi vũ khí
+- css_respawn <#userid or name>                     [@css/cheats] - Hồi sinh người chơi
+- css_noclip <#userid or name>                      [@css/cheats] - Bật/tắt noclip người chơi
+- css_godmode <#userid or name>                     [@css/cheats] - Bật/tắt chế độ bất tử người chơi
+
+{YELLOW}[ VOICE ADMIN ]{DEFAULT}
+- css_adminvoice / css_listenall                    [@css/chat]  - Bật/tắt nghe tất cả voice người chơi
+- css_hidecomms                                     [@css/kick]  - Ẩn/hiện thông báo phạt khi người chơi vào server
+
+{YELLOW}[ BẢN ĐỒ ]{DEFAULT}
+- css_map <mapname>                                 [@css/changemap] - Đổi bản đồ thường
+- css_wsmap / css_workshop <name or id>             [@css/changemap] - Đổi bản đồ Workshop
+- css_rr / css_restart / css_restartgame            [@css/generic]   - Khởi động lại trận đấu
+
+{YELLOW}[ SERVER ]{DEFAULT}
+- css_cvar <cvar> <value>                           [@css/cvar]  - Thay đổi giá trị cvar server
+- css_rcon <command>                                [@css/rcon]  - Thực thi lệnh RCON
+
+{YELLOW}[ BÌNH CHỌN ]{DEFAULT}
+- css_vote <question> [answer1] [answer2] ...       [@css/generic] - Tạo bình chọn cho người chơi
+
+{YELLOW}[ QUẢN LÝ ADMIN ]{DEFAULT}
+- css_admin                                         [@css/generic] - Mở menu admin
+- css_adminhelp                                     [@css/generic] - Hiển thị danh sách lệnh này
+- css_hide / css_stealth                            [@css/kick]    - Ẩn/hiện bản thân khỏi danh sách người chơi
+- css_addadmin <steamid> <name> <flags> <immunity> [duration]  [@css/root] - Thêm admin mới
+- css_deladmin <steamid> [-g]                       [@css/root]    - Xóa admin
+- css_addgroup <#group_name> <flags> <immunity> [-g] [@css/root]   - Thêm nhóm admin
+- css_delgroup <#group_name> [-g]                   [@css/root]    - Xóa nhóm admin
+- css_reloadadmins                                  [@css/root]    - Tải lại danh sách admin từ database
+- css_reloadbans                                    [@css/root]    - Tải lại danh sách ban
+- css_pluginsmanager / css_pluginmanager            [@css/root]    - Quản lý plugins (load/unload)
+
+{YELLOW}[ QUYỀN HẠN ĐẶC BIỆT ]{DEFAULT}
+  @css/permban  - Được phép ban vĩnh viễn
+  @css/permmute - Được phép mute/gag vĩnh viễn
+  @css/showip   - Được xem địa chỉ IP người chơi
+
+{GREEN}========================================{DEFAULT}
+{LightRed}Thời gian: 0 = Vĩnh viễn | Số = Phút{DEFAULT}
+{GREEN}========================================{DEFAULT}
