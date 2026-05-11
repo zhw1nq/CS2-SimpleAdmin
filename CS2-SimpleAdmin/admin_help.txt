@@ -24,19 +24,19 @@
 - css_kick <#userid or name> [reason]               [@css/kick]  - Kick người chơi
 
 {YELLOW}[ GAG (CẤM CHAT) ]{DEFAULT}
-- css_gag <#userid or name> [time] [reason]         [@css/chat]  - Cấm chat văn bản
-- css_addgag <steamid> [time] [reason]              [@css/chat]  - Cấm chat qua SteamID64
-- css_ungag <steamid or name> [reason]              [@css/chat]  - Bỏ cấm chat
+- css_gag <#userid or name> [time] [reason]         [@css/ban]   - Cấm chat văn bản
+- css_addgag <steamid> [time] [reason]              [@css/ban]   - Cấm chat qua SteamID64
+- css_ungag <steamid or name> [reason]              [@css/ban]   - Bỏ cấm chat
 
 {YELLOW}[ MUTE (CẤM VOICE) ]{DEFAULT}
-- css_mute <#userid or name> [time] [reason]        [@css/chat]  - Cấm nói chuyện voice
-- css_addmute <steamid> [time] [reason]             [@css/chat]  - Cấm voice qua SteamID64
-- css_unmute <steamid or name>                      [@css/chat]  - Bỏ cấm voice
+- css_mute <#userid or name> [time] [reason]        [@css/ban]   - Cấm nói chuyện voice
+- css_addmute <steamid> [time] [reason]             [@css/ban]   - Cấm voice qua SteamID64
+- css_unmute <steamid or name>                      [@css/ban]   - Bỏ cấm voice
 
 {YELLOW}[ SILENCE (CẤM CẢ CHAT VÀ VOICE) ]{DEFAULT}
-- css_silence <#userid or name> [time] [reason]     [@css/chat]  - Cấm cả chat và voice
-- css_addsilence <steamid> [time] [reason]          [@css/chat]  - Cấm silence qua SteamID64
-- css_unsilence <steamid or name> [reason]          [@css/chat]  - Bỏ silence
+- css_silence <#userid or name> [time] [reason]     [@css/ban]   - Cấm cả chat và voice
+- css_addsilence <steamid> [time] [reason]          [@css/ban]   - Cấm silence qua SteamID64
+- css_unsilence <steamid or name> [reason]          [@css/ban]   - Bỏ silence
 
 {YELLOW}[ CHAT ADMIN ]{DEFAULT}
 - css_say <message>                                 [@css/chat]  - Nhắn tin với prefix admin (tất cả)
