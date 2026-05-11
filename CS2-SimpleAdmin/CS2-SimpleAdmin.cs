@@ -81,7 +81,6 @@ public partial class CS2_SimpleAdmin : BasePlugin, IPluginConfig<CS2_SimpleAdmin
     public override void OnAllPluginsLoaded(bool hotReload)
     {
         AddTimer(6.0f, () => ReloadAdmins(null));
-        RegisterEvents();
 
         new PlayerManager().CheckPlayersTimer();
 
