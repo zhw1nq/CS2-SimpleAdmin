@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Core;
 using System.Text.Json.Serialization;
 
 namespace CS2_SimpleAdmin;
@@ -259,6 +259,12 @@ public class OtherSettings
 
     [JsonPropertyName("IgnoredIps")]
     public List<string> IgnoredIps { get; set; } = new();
+
+    [JsonPropertyName("IgnoredGiveWeapons")]
+    public Dictionary<string, List<string>> IgnoredGiveWeapons { get; set; } = new()
+    {
+        { "@css/svip", new List<string> { "weapon_awp" } }
+    };
 }
 
 public class CS2_SimpleAdminConfig : BasePluginConfig

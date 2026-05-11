@@ -100,6 +100,22 @@ public partial class CS2_SimpleAdmin
             }
         }
 
+        // check IgnoredGiveWeapons
+        if (caller != null && !AdminManager.PlayerHasPermissions(caller, "@css/root"))
+        {
+            foreach (var (flag, weapons) in Config.OtherSettings.IgnoredGiveWeapons)
+            {
+                if (flag == "*" || AdminManager.PlayerHasPermissions(caller, flag))
+                {
+                    if (weapons.Any(w => weaponName.Contains(w, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        command.ReplyToCommand($"You don't have permission to give {weaponName}.");
+                        return;
+                    }
+                }
+            }
+        }
+
         playersToTarget.ForEach(player =>
         {
             if (player.Connected != PlayerConnectedState.Connected)
