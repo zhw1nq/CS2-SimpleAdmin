@@ -17,7 +17,7 @@ public partial class CS2_SimpleAdmin
     /// <param name="caller">The player issuing the gag command or null for console.</param>
     /// <param name="command">The command input containing targets, time, and reason.</param>
     [RequiresPermissions("@css/ban")]
-    [CommandHelper(minArgs: 1, usage: "<#userid or name> [time in minutes/0 perm] [reason]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
+    [CommandHelper(minArgs: 1, usage: "<#userid or name>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnGagCommand(CCSPlayerController? caller, CommandInfo command)
     {
         if (DatabaseProvider == null) return;
@@ -43,7 +43,7 @@ public partial class CS2_SimpleAdmin
         playersToTarget.ForEach(player =>
         {
             if (!caller!.CanTarget(player)) return;
-            if (time < 0 && caller != null && caller.IsValid && Config.OtherSettings.ShowBanMenuIfNoTime)
+            if (caller != null && caller.IsValid)
             {
                 DurationMenu.OpenMenu(caller, $"{_localizer?["sa_gag"] ?? "Gag"}: {player.PlayerName}", player,
                     ManagePlayersMenu.GagMenu);
@@ -323,7 +323,7 @@ public partial class CS2_SimpleAdmin
     /// <param name="caller">The player issuing the mute command or null for console.</param>
     /// <param name="command">The command input containing targets, time, and reason.</param>
     [RequiresPermissions("@css/ban")]
-    [CommandHelper(minArgs: 1, usage: "<#userid or name> [time in minutes/0 perm] [reason]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
+    [CommandHelper(minArgs: 1, usage: "<#userid or name>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnMuteCommand(CCSPlayerController? caller, CommandInfo command)
     {
         if (DatabaseProvider == null) return;
@@ -349,7 +349,7 @@ public partial class CS2_SimpleAdmin
         playersToTarget.ForEach(player =>
         {
             if (!caller!.CanTarget(player)) return;
-            if (time < 0 && caller != null && caller.IsValid && Config.OtherSettings.ShowBanMenuIfNoTime)
+            if (caller != null && caller.IsValid)
             {
                 DurationMenu.OpenMenu(caller, $"{_localizer?["sa_mute"] ?? "Mute"}: {player.PlayerName}", player,
                     ManagePlayersMenu.MuteMenu);
@@ -640,7 +640,7 @@ public partial class CS2_SimpleAdmin
     /// <param name="caller">The admin/player issuing the silence.</param>
     /// <param name="command">Command containing target, duration, and optional reason.</param>
     [RequiresPermissions("@css/ban")]
-    [CommandHelper(minArgs: 1, usage: "<#userid or name> [time in minutes/0 perm] [reason]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
+    [CommandHelper(minArgs: 1, usage: "<#userid or name>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnSilenceCommand(CCSPlayerController? caller, CommandInfo command)
     {
         if (DatabaseProvider == null) return;
@@ -666,7 +666,7 @@ public partial class CS2_SimpleAdmin
         playersToTarget.ForEach(player =>
         {
             if (!caller!.CanTarget(player)) return;
-            if (time < 0 && caller != null && caller.IsValid && Config.OtherSettings.ShowBanMenuIfNoTime)
+            if (caller != null && caller.IsValid)
             {
                 DurationMenu.OpenMenu(caller, $"{_localizer?["sa_silence"] ?? "Silence"}: {player.PlayerName}", player,
                     ManagePlayersMenu.SilenceMenu);

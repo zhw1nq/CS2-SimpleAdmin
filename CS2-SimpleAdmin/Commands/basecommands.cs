@@ -926,7 +926,7 @@ public partial class CS2_SimpleAdmin
     /// <param name="caller">The player issuing the kick command.</param>
     /// <param name="command">The command with target player(s) and optional reason.</param>
     [RequiresPermissions("@css/kick")]
-    [CommandHelper(minArgs: 1, usage: "<#userid or name> [reason]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
+    [CommandHelper(minArgs: 1, usage: "<#userid or name>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnKickCommand(CCSPlayerController? caller, CommandInfo command)
     {
         var callerName = caller == null ? _localizer?["sa_console"] ?? "Console" : caller.PlayerName;
@@ -953,13 +953,19 @@ public partial class CS2_SimpleAdmin
             if (!player.IsValid)
                 return;
 
-            if (caller!.CanTarget(player))
+            if (!caller!.CanTarget(player)) return;
+
+            if (caller != null && caller.IsValid)
             {
-                Kick(caller, player, reason, callerName, command);
+                ReasonMenu.OpenMenu(caller, PenaltyType.Kick, $"{_localizer?["sa_kick"] ?? "Kick"}: {player.PlayerName}", player, (_, _, r) => Kick(caller, player, r, callerName, command));
+                return;
             }
+
+            Kick(caller, player, reason, callerName, command);
         });
 
-        Helper.LogCommand(caller, command);
+        if (caller == null)
+            Helper.LogCommand(caller, command);
     }
 
 

@@ -1,157 +1,258 @@
-// return
+using CounterStrikeSharp.API;
+using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Admin;
+using CounterStrikeSharp.API.Modules.Commands;
+using CounterStrikeSharp.API.Modules.Entities;
+using CounterStrikeSharp.API.ValveConstants.Protobuf;
+using System.Linq;
+using System.Threading.Tasks;
+using CS2_SimpleAdminApi;
+using System;
 
-// using CounterStrikeSharp.API;
-// using CounterStrikeSharp.API.Core;
-// using CounterStrikeSharp.API.Core.Attributes.Registration;
-// using CounterStrikeSharp.API.Core.Translations;
-// using CounterStrikeSharp.API.Modules.Admin;
-// using CounterStrikeSharp.API.Modules.Commands;
-// using CounterStrikeSharp.API.Modules.Cvars;
-// using CounterStrikeSharp.API.Modules.Entities;
-// using CounterStrikeSharp.API.Modules.Menu;
-// using CounterStrikeSharp.API.Modules.Utils;
-// using CS2_SimpleAdmin.Managers;
-// using CS2_SimpleAdmin.Menus;
-// using Microsoft.Extensions.Logging;
-// using System.Text;
-// using System.Text.Json;
+namespace CS2_SimpleAdmin;
 
-// namespace CS2_SimpleAdmin;
+public partial class CS2_SimpleAdmin
+{
+    [CommandHelper(minArgs: 5, usage: "<steamid> <admin_steamid> <admin_name> <time in minutes/0 perm> <reason>", whoCanExecute: CommandUsage.SERVER_ONLY)]
+    public void OnWebBanCommand(CCSPlayerController? caller, CommandInfo command)
+    {
+        if (DatabaseProvider == null) return;
 
-// public partial class CS2_SimpleAdmin
-// {
-//     [ConsoleCommand("css_panel_say", "Say to all players from the panel.")]
-//     [CommandHelper(1, "<message>")]
-//     [RequiresPermissions("@css/root")]
-//     public void OnPanelSayCommand(CCSPlayerController? caller, CommandInfo command)
-//     {
-//         if (!Config.IsCSSPanel) return;
-//         if (command.GetCommandString[command.GetCommandString.IndexOf(' ')..].Length == 0) return;
+        if (!Helper.ValidateSteamId(command.GetArg(1), out var steamId) || steamId == null)
+        {
+            command.ReplyToCommand("Invalid Target SteamID64.");
+            return;
+        }
 
-//         byte[] utf8BytesString = Encoding.UTF8.GetBytes(command.GetCommandString[command.GetCommandString.IndexOf(' ')..]);
-//         string utf8String = Encoding.UTF8.GetString(utf8BytesString);
+        if (!ulong.TryParse(command.GetArg(2), out var adminSteamId))
+        {
+            command.ReplyToCommand("Invalid Admin SteamID64.");
+            return;
+        }
 
-//         foreach (CCSPlayerController player in Utilities.GetPlayers().Where(p => !p.IsBot && !p.IsHLTV))
-//         {
-//             player.PrintToChat(StringExtensions.ReplaceColorTags(utf8String));
-//         }
-//     }
+        string adminName = command.GetArg(3);
+        string webAdminName = $"[WEBBAN] {adminName}";
+        var time = Math.Max(0, Helper.ParsePenaltyTime(command.GetArg(4)));
+        var reason = command.ArgCount >= 6
+            ? string.Join(" ", Enumerable.Range(5, command.ArgCount - 5).Select(command.GetArg)).Trim()
+            : _localizer?["sa_unknown"] ?? "Unknown";
+        reason = string.IsNullOrWhiteSpace(reason) ? _localizer?["sa_unknown"] ?? "Unknown" : reason;
 
-//     /**
-//     * Prints the server info and a list of players to the console
-//     */
-//     [ConsoleCommand("css_query")]
-//     [CommandHelper(whoCanExecute: CommandUsage.SERVER_ONLY)]
-//     [RequiresPermissions("@css/root")]
-//     public void OnQueryCommand(CCSPlayerController? caller, CommandInfo command)
-//     {
-//         if (!Config.IsCSSPanel) return;
+        var adminInfo = PlayersInfo.TryGetValue(adminSteamId, out var info)
+            ? info
+            : new PlayerInfo(null, 0, new SteamID(adminSteamId), adminName, null, 0, 0, 0, 0, 0);
 
-//         var playersToTarget = Utilities.GetPlayers()
-//             .Where(player => caller!.CanTarget(player) && !player.IsHLTV)
-//             .ToList();
+        Task.Run(async () =>
+        {
+            await Server.NextWorldUpdateAsync(() =>
+            {
+                var player = Helper.GetPlayerFromSteamid64(steamId.SteamId64);
+                if (player != null && player.IsValid)
+                {
+                    Ban(null, player, time, reason, webAdminName, silent: true);
+                    return;
+                }
 
-//         string mapName = Server.MapName;
-//         int playersCount = playersToTarget.Count;
-//         int maxPlayers = ConVar.Find("sv_visiblemaxplayers")?.GetPrimitiveValue<int>() is int value and > 0 ? value : Server.MaxPlayers;
+                Task.Run(async () =>
+                {
+                    int? penaltyId = await BanManager.AddBanBySteamid(steamId.SteamId64, adminInfo, reason, time);
+                    Helper.SendDiscordPenaltyMessage(null, steamId.SteamId64.ToString(), reason, time, PenaltyType.Ban, _localizer);
 
-//         string serverName = ConVar.Find("hostname")?.StringValue ?? "Unknown";
+                    var activityArgs = time == 0
+                        ? new object[] { webAdminName, steamId.SteamId64.ToString(), reason }
+                        : new object[] { webAdminName, steamId.SteamId64.ToString(), reason, time };
+                    var activityKey = time == 0 ? "sa_admin_ban_message_perm" : "sa_admin_ban_message_time";
 
-//         // string[] maps;
-//         // try
-//         // {
-//         //     maps = Server.GetMapList();
-//         // }
-//         // catch (Exception)
-//         // {
-//         //     maps = Array.Empty<string>();
-//         // }
+                    await Server.NextWorldUpdateAsync(() =>
+                    {
+                        SimpleAdminApi?.OnPlayerPenaltiedAddedEvent(steamId, adminInfo, PenaltyType.Ban, reason, time, penaltyId);
+                        Helper.ShowAdminActivity(activityKey, webAdminName, false, activityArgs);
+                    });
+                });
+            });
+        });
+    }
 
-//         var server = new
-//         {
-//             map = mapName,
-//             hN = serverName,
-//             p = playersCount,
-//             mP = maxPlayers,
-//             // maps = maps,
-//             pr = ModuleVersion
-//         };
+    [CommandHelper(minArgs: 5, usage: "<steamid> <admin_steamid> <admin_name> <time in minutes/0 perm> <reason>", whoCanExecute: CommandUsage.SERVER_ONLY)]
+    public void OnWebMuteCommand(CCSPlayerController? caller, CommandInfo command)
+    {
+        if (DatabaseProvider == null) return;
 
-//         try
-//         {
-//             var filteredPlayers = playersToTarget
-//                 .Where(player => !player.IsBot && !player.IsHLTV && !string.IsNullOrWhiteSpace(player.PlayerName));
+        if (!Helper.ValidateSteamId(command.GetArg(1), out var steamId) || steamId == null) return;
+        if (!ulong.TryParse(command.GetArg(2), out var adminSteamId)) return;
 
-//             var players = filteredPlayers.Select(player =>
-//             {
-//                 var stats = player.ActionTrackingServices!.MatchStats;
+        string adminName = command.GetArg(3);
+        string webAdminName = $"[WEBMUTE] {adminName}";
+        var time = Math.Max(0, Helper.ParsePenaltyTime(command.GetArg(4)));
+        var reason = command.ArgCount >= 6
+            ? string.Join(" ", Enumerable.Range(5, command.ArgCount - 5).Select(command.GetArg)).Trim()
+            : _localizer?["sa_unknown"] ?? "Unknown";
+        reason = string.IsNullOrWhiteSpace(reason) ? _localizer?["sa_unknown"] ?? "Unknown" : reason;
 
-//                 return new
-//                 {
-//                     id = player.UserId,
-//                     // playerName = player.PlayerName,
-//                     // ipAddress = player.IpAddress?.Split(":")[0],
-//                     // accountId = player.AuthorizedSteamID?.AccountId.ToString() ?? "",
-//                     // steamId2 = player.AuthorizedSteamID?.SteamId2.ToString() ?? "",
-//                     // steamId3 = player.AuthorizedSteamID?.SteamId3.ToString() ?? "",
-//                     pn = player.PlayerName,
-//                     s64 = player.AuthorizedSteamID?.SteamId64.ToString() ?? "",
-//                     // ping = player.Ping,
-//                     t = player.Team,
-//                     // clanName = player.ClanName,
-//                     k = stats.Kills.ToString(),
-//                     d = stats.Deaths.ToString(),
-//                     // stats.Assists.ToString(),
-//                     // stats.HeadShotKills.ToString(),
-//                     // stats.Damage.ToString(),
-//                     s = player.Score,
-//                     // roundScore = player.RoundScore,
-//                     // roundsWon = player.RoundsWon,
-//                     // mvps = player.MVPs,
-//                     // stats.LiveTime.ToString(), // ? Fix this, it's not the time the player has been connected
-//                     // avatar = player.AuthorizedSteamID != null ? await GetProfilePictureAsync(player.AuthorizedSteamID.SteamId64.ToString(), true) : ""
-//                 };
-//             }).ToList();
+        var adminInfo = PlayersInfo.TryGetValue(adminSteamId, out var info)
+            ? info
+            : new PlayerInfo(null, 0, new SteamID(adminSteamId), adminName, null, 0, 0, 0, 0, 0);
 
-//             string jsonString = JsonSerializer.Serialize(new { server, players });
-//             Server.PrintToConsole(jsonString);
-//         }
-//         catch (Exception ex)
-//         {
-//             Logger.LogError(ex, "Unexpected error while query command");
-//         }
-//     }
+        Task.Run(async () =>
+        {
+            await Server.NextWorldUpdateAsync(() =>
+            {
+                var player = Helper.GetPlayerFromSteamid64(steamId.SteamId64);
+                if (player != null && player.IsValid)
+                {
+                    Mute(null, player, time, reason, webAdminName, silent: true);
+                    return;
+                }
 
-//     [ConsoleCommand("css_fexec")]
-//     [CommandHelper(minArgs: 2, usage: "<#userid or name or steamid> <command>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
-//     [RequiresPermissions("@css/root")]
-//     public void OnFexecCommand(CCSPlayerController? caller, CommandInfo command)
-//     {
-//         var target = command.GetArg(1);
-//         var exec = command.GetArg(2);
+                Task.Run(async () =>
+                {
+                    int? penaltyId = await MuteManager.AddMuteBySteamid(steamId.SteamId64, adminInfo, reason, time, 1);
+                    Helper.SendDiscordPenaltyMessage(null, steamId.SteamId64.ToString(), reason, time, PenaltyType.Mute, _localizer);
 
-//         List<CCSPlayerController> playersToTarget = Helper.GetValidPlayers();
+                    var activityArgs = time == 0
+                        ? new object[] { webAdminName, steamId.SteamId64.ToString(), reason }
+                        : new object[] { webAdminName, steamId.SteamId64.ToString(), reason, time };
+                    var activityKey = time == 0 ? "sa_admin_mute_message_perm" : "sa_admin_mute_message_time";
 
-//         // Find the player by name, userid or steamid
-//         if (target.StartsWith("#"))
-//         {
-//             playersToTarget = playersToTarget.Where(player => player.UserId.ToString() == target.Replace("#", "")).ToList();
-//         }
-//         else if (Helper.IsValidSteamId64(target))
-//         {
-//             playersToTarget = playersToTarget.Where(player => player.SteamID.ToString() == target).ToList();
-//         }
-//         else
-//         {
-//             playersToTarget = playersToTarget.Where(player => player.PlayerName.ToLower().Contains(target.ToLower())).ToList();
-//         }
+                    await Server.NextWorldUpdateAsync(() =>
+                    {
+                        SimpleAdminApi?.OnPlayerPenaltiedAddedEvent(steamId, adminInfo, PenaltyType.Mute, reason, time, penaltyId);
+                        Helper.ShowAdminActivity(activityKey, webAdminName, false, activityArgs);
+                    });
+                });
+            });
+        });
+    }
 
-//         playersToTarget.ForEach(player =>
-//         {
-//             if (caller.CanTarget(player))
-//             {
-//                 player.ExecuteClientCommandFromServer(exec);
-//             }
-//         });
-//     }
-// }
+    [CommandHelper(minArgs: 5, usage: "<steamid> <admin_steamid> <admin_name> <time in minutes/0 perm> <reason>", whoCanExecute: CommandUsage.SERVER_ONLY)]
+    public void OnWebGagCommand(CCSPlayerController? caller, CommandInfo command)
+    {
+        if (DatabaseProvider == null) return;
+
+        if (!Helper.ValidateSteamId(command.GetArg(1), out var steamId) || steamId == null) return;
+        if (!ulong.TryParse(command.GetArg(2), out var adminSteamId)) return;
+
+        string adminName = command.GetArg(3);
+        string webAdminName = $"[WEBGAG] {adminName}";
+        var time = Math.Max(0, Helper.ParsePenaltyTime(command.GetArg(4)));
+        var reason = command.ArgCount >= 6
+            ? string.Join(" ", Enumerable.Range(5, command.ArgCount - 5).Select(command.GetArg)).Trim()
+            : _localizer?["sa_unknown"] ?? "Unknown";
+        reason = string.IsNullOrWhiteSpace(reason) ? _localizer?["sa_unknown"] ?? "Unknown" : reason;
+
+        var adminInfo = PlayersInfo.TryGetValue(adminSteamId, out var info)
+            ? info
+            : new PlayerInfo(null, 0, new SteamID(adminSteamId), adminName, null, 0, 0, 0, 0, 0);
+
+        Task.Run(async () =>
+        {
+            await Server.NextWorldUpdateAsync(() =>
+            {
+                var player = Helper.GetPlayerFromSteamid64(steamId.SteamId64);
+                if (player != null && player.IsValid)
+                {
+                    Gag(null, player, time, reason, webAdminName, silent: true);
+                    return;
+                }
+
+                Task.Run(async () =>
+                {
+                    int? penaltyId = await MuteManager.AddMuteBySteamid(steamId.SteamId64, adminInfo, reason, time, 3);
+                    Helper.SendDiscordPenaltyMessage(null, steamId.SteamId64.ToString(), reason, time, PenaltyType.Gag, _localizer);
+
+                    var activityArgs = time == 0
+                        ? new object[] { webAdminName, steamId.SteamId64.ToString(), reason }
+                        : new object[] { webAdminName, steamId.SteamId64.ToString(), reason, time };
+                    var activityKey = time == 0 ? "sa_admin_gag_message_perm" : "sa_admin_gag_message_time";
+
+                    await Server.NextWorldUpdateAsync(() =>
+                    {
+                        SimpleAdminApi?.OnPlayerPenaltiedAddedEvent(steamId, adminInfo, PenaltyType.Gag, reason, time, penaltyId);
+                        Helper.ShowAdminActivity(activityKey, webAdminName, false, activityArgs);
+                    });
+                });
+            });
+        });
+    }
+
+    [CommandHelper(minArgs: 5, usage: "<steamid> <admin_steamid> <admin_name> <time in minutes/0 perm> <reason>", whoCanExecute: CommandUsage.SERVER_ONLY)]
+    public void OnWebSilenceCommand(CCSPlayerController? caller, CommandInfo command)
+    {
+        if (DatabaseProvider == null) return;
+
+        if (!Helper.ValidateSteamId(command.GetArg(1), out var steamId) || steamId == null) return;
+        if (!ulong.TryParse(command.GetArg(2), out var adminSteamId)) return;
+
+        string adminName = command.GetArg(3);
+        string webAdminName = $"[WEBSILENCE] {adminName}";
+        var time = Math.Max(0, Helper.ParsePenaltyTime(command.GetArg(4)));
+        var reason = command.ArgCount >= 6
+            ? string.Join(" ", Enumerable.Range(5, command.ArgCount - 5).Select(command.GetArg)).Trim()
+            : _localizer?["sa_unknown"] ?? "Unknown";
+        reason = string.IsNullOrWhiteSpace(reason) ? _localizer?["sa_unknown"] ?? "Unknown" : reason;
+
+        var adminInfo = PlayersInfo.TryGetValue(adminSteamId, out var info)
+            ? info
+            : new PlayerInfo(null, 0, new SteamID(adminSteamId), adminName, null, 0, 0, 0, 0, 0);
+
+        Task.Run(async () =>
+        {
+            await Server.NextWorldUpdateAsync(() =>
+            {
+                var player = Helper.GetPlayerFromSteamid64(steamId.SteamId64);
+                if (player != null && player.IsValid)
+                {
+                    Silence(null, player, time, reason, webAdminName, silent: true);
+                    return;
+                }
+
+                Task.Run(async () =>
+                {
+                    int? penaltyId = await MuteManager.AddMuteBySteamid(steamId.SteamId64, adminInfo, reason, time, 2);
+                    Helper.SendDiscordPenaltyMessage(null, steamId.SteamId64.ToString(), reason, time, PenaltyType.Silence, _localizer);
+
+                    var activityArgs = time == 0
+                        ? new object[] { webAdminName, steamId.SteamId64.ToString(), reason }
+                        : new object[] { webAdminName, steamId.SteamId64.ToString(), reason, time };
+                    var activityKey = time == 0 ? "sa_admin_silence_message_perm" : "sa_admin_silence_message_time";
+
+                    await Server.NextWorldUpdateAsync(() =>
+                    {
+                        SimpleAdminApi?.OnPlayerPenaltiedAddedEvent(steamId, adminInfo, PenaltyType.Silence, reason, time, penaltyId);
+                        Helper.ShowAdminActivity(activityKey, webAdminName, false, activityArgs);
+                    });
+                });
+            });
+        });
+    }
+
+    [CommandHelper(minArgs: 4, usage: "<steamid> <admin_steamid> <admin_name> <reason>", whoCanExecute: CommandUsage.SERVER_ONLY)]
+    public void OnWebKickCommand(CCSPlayerController? caller, CommandInfo command)
+    {
+        if (DatabaseProvider == null) return;
+
+        if (!Helper.ValidateSteamId(command.GetArg(1), out var steamId) || steamId == null) return;
+        if (!ulong.TryParse(command.GetArg(2), out var adminSteamId)) return;
+
+        string adminName = command.GetArg(3);
+        string webAdminName = $"[WEBKICK] {adminName}";
+        var reason = command.ArgCount >= 5
+            ? string.Join(" ", Enumerable.Range(4, command.ArgCount - 4).Select(command.GetArg)).Trim()
+            : _localizer?["sa_unknown"] ?? "Unknown";
+        reason = string.IsNullOrWhiteSpace(reason) ? _localizer?["sa_unknown"] ?? "Unknown" : reason;
+
+        Task.Run(async () =>
+        {
+            await Server.NextWorldUpdateAsync(() =>
+            {
+                var player = Helper.GetPlayerFromSteamid64(steamId.SteamId64);
+                if (player == null || !player.IsValid || !player.UserId.HasValue) return;
+
+                Helper.KickPlayer(player.UserId.Value, NetworkDisconnectionReason.NETWORK_DISCONNECT_KICKBANADDED);
+                Helper.DisplayCenterMessage(player, "sa_player_kick_message", webAdminName, new object[] { reason, webAdminName });
+                Helper.ShowAdminActivity("sa_admin_kick_message", webAdminName, false, new object[] { webAdminName, player.PlayerName, reason });
+                Helper.LogCommand(null, $"css_kick {player.SteamID} {reason}");
+            });
+        });
+    }
+}

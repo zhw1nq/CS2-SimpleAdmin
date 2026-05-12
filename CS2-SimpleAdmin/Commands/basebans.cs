@@ -18,7 +18,7 @@ public partial class CS2_SimpleAdmin
     /// <param name="caller">The player issuing the ban command, or null for console.</param>
     /// <param name="command">The command information including arguments.</param>
     [RequiresPermissions("@css/ban")]
-    [CommandHelper(minArgs: 1, usage: "<#userid or name> [time in minutes/0 perm] [reason]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
+    [CommandHelper(minArgs: 1, usage: "<#userid or name>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnBanCommand(CCSPlayerController? caller, CommandInfo command)
     {
         var callerName = caller == null ? _localizer?["sa_console"] ?? "Console" : caller.PlayerName;
@@ -43,9 +43,9 @@ public partial class CS2_SimpleAdmin
 
         playersToTarget.ForEach(player =>
         {
-            if (!caller.CanTarget(player)) return;
+            if (!caller!.CanTarget(player)) return;
 
-            if (time < 0 && caller != null && caller.IsValid && Config.OtherSettings.ShowBanMenuIfNoTime)
+            if (caller != null && caller.IsValid)
             {
                 DurationMenu.OpenMenu(caller, $"{_localizer?["sa_ban"] ?? "Ban"}: {player.PlayerName}", player,
                     ManagePlayersMenu.BanMenu);
@@ -362,7 +362,7 @@ public partial class CS2_SimpleAdmin
     /// <param name="caller">The player issuing the warn command.</param>
     /// <param name="command">The command containing target, time, and reason parameters.</param>
     [RequiresPermissions("@css/kick")]
-    [CommandHelper(minArgs: 1, usage: "<#userid or name> [time in minutes/0 perm] [reason]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
+    [CommandHelper(minArgs: 1, usage: "<#userid or name>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void OnWarnCommand(CCSPlayerController? caller, CommandInfo command)
     {
         if (DatabaseProvider == null)
@@ -389,10 +389,15 @@ public partial class CS2_SimpleAdmin
 
         playersToTarget.ForEach(player =>
         {
-            if (caller!.CanTarget(player))
+            if (!caller!.CanTarget(player)) return;
+
+            if (caller != null && caller.IsValid)
             {
-                Warn(caller, player, time, reason, callerName, command);
+                DurationMenu.OpenMenu(caller, $"{_localizer?["sa_warn"] ?? "Warn"}: {player.PlayerName}", player, ManagePlayersMenu.WarnMenu);
+                return;
             }
+
+            Warn(caller, player, time, reason, callerName, command);
         });
     }
 
