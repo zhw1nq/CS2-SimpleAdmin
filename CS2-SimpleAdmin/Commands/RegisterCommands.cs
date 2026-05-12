@@ -86,7 +86,13 @@ public static class RegisterCommands
         new("css_tp", CS2_SimpleAdmin.Instance.OnGotoCommand),
         new("css_bring", CS2_SimpleAdmin.Instance.OnBringCommand),
         new("css_pluginsmanager", CS2_SimpleAdmin.Instance.OnPluginManagerCommand),
-        new("css_adminvoice", CS2_SimpleAdmin.Instance.OnAdminVoiceCommand)
+        new("css_adminvoice", CS2_SimpleAdmin.Instance.OnAdminVoiceCommand),
+
+        new("css_webban", CS2_SimpleAdmin.Instance.OnWebBanCommand),
+        new("css_webmute", CS2_SimpleAdmin.Instance.OnWebMuteCommand),
+        new("css_webgag", CS2_SimpleAdmin.Instance.OnWebGagCommand),
+        new("css_websilence", CS2_SimpleAdmin.Instance.OnWebSilenceCommand),
+        new("css_webkick", CS2_SimpleAdmin.Instance.OnWebKickCommand)
     ];
 
     /// <summary>
@@ -180,7 +186,12 @@ public static class RegisterCommands
                 { "css_tp", new Command { Aliases = ["css_tp", "css_tpto", "css_goto"] } },
                 { "css_bring", new Command { Aliases = ["css_bring", "css_tphere"] } },
                 { "css_pluginsmanager", new Command { Aliases = ["css_pluginsmanager", "css_pluginmanager"] } },
-                { "css_adminvoice", new Command { Aliases = ["css_adminvoice", "css_listenall"] } }
+                { "css_adminvoice", new Command { Aliases = ["css_adminvoice", "css_listenall"] } },
+                { "css_webban", new Command { Aliases = ["css_webban"] } },
+                { "css_webmute", new Command { Aliases = ["css_webmute"] } },
+                { "css_webgag", new Command { Aliases = ["css_webgag"] } },
+                { "css_websilence", new Command { Aliases = ["css_websilence"] } },
+                { "css_webkick", new Command { Aliases = ["css_webkick"] } }
             }
         };
         

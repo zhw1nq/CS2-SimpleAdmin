@@ -38,7 +38,7 @@ public partial class CS2_SimpleAdmin
         
         reason = string.IsNullOrWhiteSpace(reason) ? _localizer?["sa_unknown"] ?? "Unknown" : reason;
 
-        var time = Helper.ParsePenaltyTime(command.GetArg(2));
+        var time = command.ArgCount >= 3 ? Helper.ParsePenaltyTime(command.GetArg(2)) : -1;
         
         playersToTarget.ForEach(player =>
         {
@@ -64,7 +64,7 @@ public partial class CS2_SimpleAdmin
     /// <param name="callerName">Optional caller name for notifications.</param>
     /// <param name="command">Optional command info for logging.</param>
     /// <param name="silent">If true, suppresses logging notifications.</param>
-    internal void Gag(CCSPlayerController? caller, CCSPlayerController player, int time, string reason, string? callerName = null, CommandInfo? command = null, bool silent = false)
+    internal void Gag(CCSPlayerController? caller, CCSPlayerController player, int time, string reason, string? callerName = null, CommandInfo? command = null, bool silent = false, PlayerInfo? overrideAdminInfo = null)
     {
         if (DatabaseProvider == null || !player.IsValid || !player.UserId.HasValue) return;
         if (!caller.CanTarget(player)) return;
@@ -75,7 +75,7 @@ public partial class CS2_SimpleAdmin
 
         // Get player and admin information
         var playerInfo = PlayersInfo[player.SteamID];
-        var adminInfo = caller != null && caller.UserId.HasValue ? PlayersInfo[caller.SteamID] : null;
+        var adminInfo = overrideAdminInfo ?? (caller != null && caller.UserId.HasValue ? PlayersInfo[caller.SteamID] : null);
 
         // Asynchronously handle gag logic
         Task.Run(async () =>
@@ -344,7 +344,7 @@ public partial class CS2_SimpleAdmin
         
         reason = string.IsNullOrWhiteSpace(reason) ? _localizer?["sa_unknown"] ?? "Unknown" : reason;
         
-        var time = Helper.ParsePenaltyTime(command.GetArg(2));
+        var time = command.ArgCount >= 3 ? Helper.ParsePenaltyTime(command.GetArg(2)) : -1;
 
         playersToTarget.ForEach(player =>
         {
@@ -370,7 +370,7 @@ public partial class CS2_SimpleAdmin
     /// <param name="callerName">Optional caller name for notification messages.</param>
     /// <param name="command">Optional command info for logging.</param>
     /// <param name="silent">If true, suppresses some logging.</param>
-    internal void Mute(CCSPlayerController? caller, CCSPlayerController player, int time, string reason, string? callerName = null, CommandInfo? command = null, bool silent = false)
+    internal void Mute(CCSPlayerController? caller, CCSPlayerController player, int time, string reason, string? callerName = null, CommandInfo? command = null, bool silent = false, PlayerInfo? overrideAdminInfo = null)
     {
         if (DatabaseProvider == null || !player.IsValid || !player.UserId.HasValue) return;
         if (!caller.CanTarget(player)) return;
@@ -381,7 +381,7 @@ public partial class CS2_SimpleAdmin
 
         // Get player and admin information
         var playerInfo = PlayersInfo[player.SteamID];
-        var adminInfo = caller != null && caller.UserId.HasValue ? PlayersInfo[caller.SteamID] : null;
+        var adminInfo = overrideAdminInfo ?? (caller != null && caller.UserId.HasValue ? PlayersInfo[caller.SteamID] : null);
 
         // Set player's voice flags to muted
         if (!player.VoiceFlags.HasFlag(VoiceFlags.Muted))
@@ -661,7 +661,7 @@ public partial class CS2_SimpleAdmin
         
         reason = string.IsNullOrWhiteSpace(reason) ? _localizer?["sa_unknown"] ?? "Unknown" : reason;
 
-        var time = Helper.ParsePenaltyTime(command.GetArg(2));
+        var time = command.ArgCount >= 3 ? Helper.ParsePenaltyTime(command.GetArg(2)) : -1;
         
         playersToTarget.ForEach(player =>
         {
@@ -687,7 +687,7 @@ public partial class CS2_SimpleAdmin
     /// <param name="callerName">Optional name of silent admin or console.</param>
     /// <param name="command">Optional command details for logging.</param>
     /// <param name="silent">If true, suppresses logging notifications.</param>
-    internal void Silence(CCSPlayerController? caller, CCSPlayerController player, int time, string reason, string? callerName = null, CommandInfo? command = null, bool silent = false)
+    internal void Silence(CCSPlayerController? caller, CCSPlayerController player, int time, string reason, string? callerName = null, CommandInfo? command = null, bool silent = false, PlayerInfo? overrideAdminInfo = null)
     {
         if (DatabaseProvider == null || !player.IsValid || !player.UserId.HasValue) return;
         if (!caller.CanTarget(player)) return;
@@ -698,7 +698,7 @@ public partial class CS2_SimpleAdmin
 
         // Get player and admin information
         var playerInfo = PlayersInfo[player.SteamID];
-        var adminInfo = caller != null && caller.UserId.HasValue ? PlayersInfo[caller.SteamID] : null;
+        var adminInfo = overrideAdminInfo ?? (caller != null && caller.UserId.HasValue ? PlayersInfo[caller.SteamID] : null);
 
         // Set player's voice flags to muted
         if (!player.VoiceFlags.HasFlag(VoiceFlags.Muted))

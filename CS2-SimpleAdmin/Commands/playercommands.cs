@@ -90,26 +90,43 @@ public partial class CS2_SimpleAdmin
         var playersToTarget = targets.Players.Where(player => player.IsValid && player is { IsHLTV: false, PlayerPawn.Value.LifeState: (int)LifeState_t.LIFE_ALIVE }).ToList();
         var weaponName = command.GetArg(2);
 
+        // Resolve partial weapon name to full name FIRST (before any checks)
+        var resolvedWeapons = WeaponHelper.GetWeaponsByPartialName(weaponName);
+        if (resolvedWeapons.Count == 0)
+        {
+            command.ReplyToCommand($"Weapon '{weaponName}' not found.");
+            return;
+        }
+        if (resolvedWeapons.Count > 1)
+        {
+            var weaponList = string.Join(", ", resolvedWeapons.Select(w => w.EnumMemberValue));
+            command.ReplyToCommand($"Found weapons with a similar name: {weaponList}");
+            return;
+        }
+
+        var resolvedWeaponName = resolvedWeapons.First().EnumMemberValue;
+        var resolvedWeaponItem = resolvedWeapons.First().EnumValue;
+
         // check if weapon is knife
-        if (weaponName.Contains("_knife") || weaponName.Contains("bayonet"))
+        if (resolvedWeaponName.Contains("_knife") || resolvedWeaponName.Contains("bayonet"))
         {
             if (CoreConfig.FollowCS2ServerGuidelines)
             {
-                command.ReplyToCommand($"Cannot Give {weaponName} because it's illegal to be given.");
+                command.ReplyToCommand($"Cannot Give {resolvedWeaponName} because it's illegal to be given.");
                 return;
             }
         }
 
-        // check IgnoredGiveWeapons
+        // check IgnoredGiveWeapons using the RESOLVED full weapon name
         if (caller != null && !AdminManager.PlayerHasPermissions(caller, "@css/root"))
         {
             foreach (var (flag, weapons) in Config.OtherSettings.IgnoredGiveWeapons)
             {
                 if (flag == "*" || AdminManager.PlayerHasPermissions(caller, flag))
                 {
-                    if (weapons.Any(w => weaponName.Contains(w, StringComparison.OrdinalIgnoreCase)))
+                    if (weapons.Contains("*") || weapons.Any(w => resolvedWeaponName.Contains(w, StringComparison.OrdinalIgnoreCase)))
                     {
-                        command.ReplyToCommand($"You don't have permission to give {weaponName}.");
+                        command.ReplyToCommand($"Bạn cần đủ Lv36 để unlock súng này =))) {resolvedWeaponName}.");
                         return;
                     }
                 }
@@ -121,7 +138,7 @@ public partial class CS2_SimpleAdmin
             if (player.Connected != PlayerConnectedState.Connected)
                 return;
 
-            GiveWeapon(caller, player, weaponName, callerName, command);
+            GiveWeapon(caller, player, resolvedWeaponItem, callerName, command);
         });
 
         Helper.LogCommand(caller, command);

@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.ValveConstants.Protobuf;
 using CS2_SimpleAdminApi;
 using Dapper;
@@ -33,7 +33,7 @@ internal class BanManager(IDatabaseProvider? databaseProvider)
             {
                 playerSteamid = player.SteamId.SteamId64,
                 playerName = player.Name,
-                playerIp = CS2_SimpleAdmin.Instance.Config.OtherSettings.BanType == 1 ? player.IpAddress : null,
+                playerIp = CS2_SimpleAdmin.Instance.Config.OtherSettings.BanType > 0 ? player.IpAddress : null,
                 adminSteamid = issuer?.SteamId.SteamId64 ?? 0,
                 adminName = issuer?.Name ?? CS2_SimpleAdmin._localizer?["sa_console"] ?? "Console",
                 banReason = reason,

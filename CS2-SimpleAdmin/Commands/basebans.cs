@@ -39,7 +39,7 @@ public partial class CS2_SimpleAdmin
             : _localizer?["sa_unknown"] ?? "Unknown";
 
         reason = string.IsNullOrWhiteSpace(reason) ? _localizer?["sa_unknown"] ?? "Unknown" : reason;
-        var time = Helper.ParsePenaltyTime(command.GetArg(2));
+        var time = command.ArgCount >= 3 ? Helper.ParsePenaltyTime(command.GetArg(2)) : -1;
 
         playersToTarget.ForEach(player =>
         {
@@ -67,20 +67,20 @@ public partial class CS2_SimpleAdmin
     /// <param name="banManager">Optional BanManager to handle ban persistence.</param>
     /// <param name="command">Optional command info object for logging.</param>
     /// <param name="silent">If true, suppresses command logging.</param>
-    internal void Ban(CCSPlayerController? caller, CCSPlayerController player, int time, string reason, string? callerName = null, BanManager? banManager = null, CommandInfo? command = null, bool silent = false)
+    internal void Ban(CCSPlayerController? caller, CCSPlayerController player, int time, string reason, string? callerName = null, BanManager? banManager = null, CommandInfo? command = null, bool silent = false, PlayerInfo? overrideAdminInfo = null)
     {
         if (DatabaseProvider == null || !player.IsValid || !player.UserId.HasValue) return;
         if (!caller.CanTarget(player)) return;
         if (!CheckValidBan(caller, time)) return;
 
         // Set default caller name if not provided
-        callerName = !string.IsNullOrEmpty(caller?.PlayerName)
+        callerName ??= !string.IsNullOrEmpty(caller?.PlayerName)
             ? caller.PlayerName
             : (_localizer?["sa_console"] ?? "Console");
 
         // Get player and admin information
         var playerInfo = PlayersInfo[player.SteamID];
-        var adminInfo = caller != null && caller.UserId.HasValue ? PlayersInfo[caller.SteamID] : null;
+        var adminInfo = overrideAdminInfo ?? (caller != null && caller.UserId.HasValue ? PlayersInfo[caller.SteamID] : null);
 
         // Asynchronously handle banning logic
         Task.Run(async () =>
@@ -380,7 +380,7 @@ public partial class CS2_SimpleAdmin
             return;
         }
 
-        var time = Math.Max(0, Helper.ParsePenaltyTime(command.GetArg(2)));
+        var time = Math.Max(0, command.ArgCount >= 3 ? Helper.ParsePenaltyTime(command.GetArg(2)) : -1);
         var reason = command.ArgCount >= 3
             ? string.Join(" ", Enumerable.Range(3, command.ArgCount - 3).Select(command.GetArg)).Trim()
             : _localizer?["sa_unknown"] ?? "Unknown";
@@ -410,14 +410,14 @@ public partial class CS2_SimpleAdmin
     /// <param name="reason">Reason for the warning.</param>
     /// <param name="callerName">Optional display name of the caller.</param>
     /// <param name="command">Optional command info for logging.</param>
-    internal void Warn(CCSPlayerController? caller, CCSPlayerController player, int time, string reason, string? callerName = null, CommandInfo? command = null)
+    internal void Warn(CCSPlayerController? caller, CCSPlayerController player, int time, string reason, string? callerName = null, CommandInfo? command = null, PlayerInfo? overrideAdminInfo = null)
     {
         if (DatabaseProvider == null || !player.IsValid || !player.UserId.HasValue) return;
         if (!caller.CanTarget(player)) return;
         if (!CheckValidBan(caller, time)) return;
 
         // Set default caller name if not provided
-        callerName = !string.IsNullOrEmpty(caller?.PlayerName)
+        callerName ??= !string.IsNullOrEmpty(caller?.PlayerName)
             ? caller.PlayerName
             : (_localizer?["sa_console"] ?? "Console");
 
@@ -430,7 +430,7 @@ public partial class CS2_SimpleAdmin
 
         // Get player and admin information
         var playerInfo = PlayersInfo[player.SteamID];
-        var adminInfo = caller != null && caller.UserId.HasValue ? PlayersInfo[caller.SteamID] : null;
+        var adminInfo = overrideAdminInfo ?? (caller != null && caller.UserId.HasValue ? PlayersInfo[caller.SteamID] : null);
 
         // Asynchronously handle warning logic
         Task.Run(async () =>

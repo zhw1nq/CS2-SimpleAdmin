@@ -244,7 +244,7 @@ public static class ManagePlayersMenu
         CS2_SimpleAdmin.Instance.Ban(admin, player, duration, reason, admin.PlayerName);
     }
 
-    private static void WarnMenu(CCSPlayerController admin, CCSPlayerController player, int duration)
+    internal static void WarnMenu(CCSPlayerController admin, CCSPlayerController player, int duration)
     {
         ReasonMenu.OpenMenu(admin, PenaltyType.Warn,
             $"{CS2_SimpleAdmin._localizer?["sa_warn"] ?? "Warn"}: {player.PlayerName}", player, (_, _, reason) =>

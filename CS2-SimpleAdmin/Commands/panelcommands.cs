@@ -49,7 +49,7 @@ public partial class CS2_SimpleAdmin
                 var player = Helper.GetPlayerFromSteamid64(steamId.SteamId64);
                 if (player != null && player.IsValid)
                 {
-                    Ban(null, player, time, reason, webAdminName, silent: true);
+                    Ban(null, player, time, reason, webAdminName, silent: true, overrideAdminInfo: adminInfo);
                     return;
                 }
 
@@ -100,7 +100,7 @@ public partial class CS2_SimpleAdmin
                 var player = Helper.GetPlayerFromSteamid64(steamId.SteamId64);
                 if (player != null && player.IsValid)
                 {
-                    Mute(null, player, time, reason, webAdminName, silent: true);
+                    Mute(null, player, time, reason, webAdminName, silent: true, overrideAdminInfo: adminInfo);
                     return;
                 }
 
@@ -151,7 +151,7 @@ public partial class CS2_SimpleAdmin
                 var player = Helper.GetPlayerFromSteamid64(steamId.SteamId64);
                 if (player != null && player.IsValid)
                 {
-                    Gag(null, player, time, reason, webAdminName, silent: true);
+                    Gag(null, player, time, reason, webAdminName, silent: true, overrideAdminInfo: adminInfo);
                     return;
                 }
 
@@ -202,7 +202,7 @@ public partial class CS2_SimpleAdmin
                 var player = Helper.GetPlayerFromSteamid64(steamId.SteamId64);
                 if (player != null && player.IsValid)
                 {
-                    Silence(null, player, time, reason, webAdminName, silent: true);
+                    Silence(null, player, time, reason, webAdminName, silent: true, overrideAdminInfo: adminInfo);
                     return;
                 }
 
