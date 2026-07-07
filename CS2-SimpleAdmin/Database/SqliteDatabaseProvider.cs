@@ -98,20 +98,22 @@ public class SqliteDatabaseProvider(string filePath) : IDatabaseProvider
         multiServer
             ? """
               UPDATE sa_bans
-              SET player_ip   = COALESCE(player_ip, @PlayerIP),
-                  player_name = COALESCE(player_name, @PlayerName)
+              SET player_ip   = COALESCE(NULLIF(player_ip, ''), @PlayerIP),
+                  player_name = COALESCE(NULLIF(player_name, ''), @PlayerName),
+                  updated_at  = CURRENT_TIMESTAMP
               WHERE (player_steamid = @PlayerSteamID OR player_ip = @PlayerIP)
                 AND status = 'ACTIVE'
-                AND (duration = 0 OR ends > @CurrentTime)
+                AND (duration = 0 OR ends IS NULL OR ends > @CurrentTime)
               """
             : """
               UPDATE sa_bans
-              SET player_ip   = COALESCE(player_ip, @PlayerIP),
-                  player_name = COALESCE(player_name, @PlayerName)
+              SET player_ip   = COALESCE(NULLIF(player_ip, ''), @PlayerIP),
+                  player_name = COALESCE(NULLIF(player_name, ''), @PlayerName),
+                  updated_at  = CURRENT_TIMESTAMP
               WHERE (player_steamid = @PlayerSteamID OR player_ip = @PlayerIP)
                 AND status = 'ACTIVE'
-                AND (duration = 0 OR ends > @CurrentTime)
-                AND server_id = @ServerId
+                AND (duration = 0 OR ends IS NULL OR ends > @CurrentTime)
+                AND (server_id = @ServerId OR server_id IS NULL)
               """;
 
     public string GetAddBanQuery() =>
@@ -126,9 +128,9 @@ public class SqliteDatabaseProvider(string filePath) : IDatabaseProvider
     public string GetAddBanBySteamIdQuery() =>
         """
         INSERT INTO sa_bans
-            (player_steamid, admin_steamid, admin_name, reason, duration, ends, created, server_id)
+            (player_steamid, player_name, player_ip, admin_steamid, admin_name, reason, duration, ends, created, server_id)
         VALUES
-            (@playerSteamid, @adminSteamid, @adminName, @banReason, @duration, @ends, @created, @serverid);
+            (@playerSteamid, @playerName, @playerIp, @adminSteamid, @adminName, @banReason, @duration, @ends, @created, @serverid);
         SELECT last_insert_rowid();
         """;
 
@@ -155,17 +157,17 @@ public class SqliteDatabaseProvider(string filePath) : IDatabaseProvider
             : "INSERT INTO sa_unbans (ban_id, admin_id) VALUES (@banId, @adminId); SELECT last_insert_rowid();";
 
     public string GetUpdateBanStatusQuery() =>
-        "UPDATE sa_bans SET status = 'UNBANNED', unban_id = @unbanId WHERE id = @banId";
+        "UPDATE sa_bans SET status = 'UNBANNED', unban_id = @unbanId, updated_at = CURRENT_TIMESTAMP WHERE id = @banId";
 
     public string GetExpireBansQuery(bool multiServer) =>
         multiServer
-            ? "UPDATE sa_bans SET status = 'EXPIRED' WHERE status = 'ACTIVE' AND duration > 0 AND ends <= @currentTime"
-            : "UPDATE sa_bans SET status = 'EXPIRED' WHERE status = 'ACTIVE' AND duration > 0 AND ends <= @currentTime AND server_id = @serverid";
+            ? "UPDATE sa_bans SET status = 'EXPIRED', updated_at = CURRENT_TIMESTAMP WHERE status = 'ACTIVE' AND duration > 0 AND ends <= @currentTime"
+            : "UPDATE sa_bans SET status = 'EXPIRED', updated_at = CURRENT_TIMESTAMP WHERE status = 'ACTIVE' AND duration > 0 AND ends <= @currentTime AND server_id = @serverid";
 
     public string GetExpireIpBansQuery(bool multiServer) =>
         multiServer
-            ? "UPDATE sa_bans SET player_ip = NULL WHERE status = 'ACTIVE' AND ends <= @ipBansTime"
-            : "UPDATE sa_bans SET player_ip = NULL WHERE status = 'ACTIVE' AND ends <= @ipBansTime AND server_id = @serverid";
+            ? "UPDATE sa_bans SET player_ip = NULL, updated_at = CURRENT_TIMESTAMP WHERE status = 'ACTIVE' AND ends <= @ipBansTime"
+            : "UPDATE sa_bans SET player_ip = NULL, updated_at = CURRENT_TIMESTAMP WHERE status = 'ACTIVE' AND ends <= @ipBansTime AND server_id = @serverid";
 
     public string GetExpireOldPlayerIpsQuery() =>
         "DELETE FROM sa_players_ips WHERE used_at <= @ipBansTime";

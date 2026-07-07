@@ -161,10 +161,16 @@ public partial class CS2_SimpleAdmin
         {
             if (!caller.CanTarget(steamid))
                 return;
+
+            // Try to get player name and IP from disconnected players
+            var disconnected = DisconnectedPlayers.FirstOrDefault(p => p.SteamId.SteamId64 == steamid.SteamId64);
+            var offlineName = disconnected?.Name;
+            var offlineIp = disconnected?.IpAddress;
+
             // Asynchronous ban operation if player is not online or not found
             Task.Run(async () =>
             {
-                int? penaltyId = await BanManager.AddBanBySteamid(steamid.SteamId64, adminInfo, reason, time);
+                int? penaltyId = await BanManager.AddBanBySteamid(steamid.SteamId64, adminInfo, reason, time, offlineName, offlineIp);
                 await Server.NextWorldUpdateAsync(() =>
                 {
                     SimpleAdminApi?.OnPlayerPenaltiedAddedEvent(steamid, adminInfo, PenaltyType.Ban, reason, time,
@@ -222,10 +228,15 @@ public partial class CS2_SimpleAdmin
             if (!caller.CanTarget(new SteamID(steamId.SteamId64)))
                 return;
 
+            // Try to get player name and IP from disconnected players
+            var disconnected = DisconnectedPlayers.FirstOrDefault(p => p.SteamId.SteamId64 == steamid);
+            var offlineName = disconnected?.Name;
+            var offlineIp = disconnected?.IpAddress;
+
             // Asynchronous ban operation if player is not online or not found
             Task.Run(async () =>
             {
-                int? penaltyId = await BanManager.AddBanBySteamid(steamid, adminInfo, reason, time);
+                int? penaltyId = await BanManager.AddBanBySteamid(steamid, adminInfo, reason, time, offlineName, offlineIp);
                 await Server.NextWorldUpdateAsync(() =>
                 {
                     SimpleAdminApi?.OnPlayerPenaltiedAddedEvent(steamId, adminInfo, PenaltyType.Ban, reason, time,

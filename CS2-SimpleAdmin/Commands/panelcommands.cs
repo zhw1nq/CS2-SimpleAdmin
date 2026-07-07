@@ -55,7 +55,12 @@ public partial class CS2_SimpleAdmin
 
                 Task.Run(async () =>
                 {
-                    int? penaltyId = await BanManager.AddBanBySteamid(steamId.SteamId64, adminInfo, reason, time);
+                    // Try to get player name and IP from disconnected players
+                    var disconnected = DisconnectedPlayers.FirstOrDefault(p => p.SteamId.SteamId64 == steamId.SteamId64);
+                    var offlineName = disconnected?.Name;
+                    var offlineIp = disconnected?.IpAddress;
+
+                    int? penaltyId = await BanManager.AddBanBySteamid(steamId.SteamId64, adminInfo, reason, time, offlineName, offlineIp);
                     Helper.SendDiscordPenaltyMessage(null, steamId.SteamId64.ToString(), reason, time, PenaltyType.Ban, _localizer);
 
                     var activityArgs = time == 0

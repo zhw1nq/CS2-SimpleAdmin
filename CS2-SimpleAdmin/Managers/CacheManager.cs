@@ -22,6 +22,109 @@ internal class CacheManager : IDisposable
     private bool _disposed;
 
     /// <summary>
+    /// Safely queries ban records from the database, parsing each row individually.
+    /// Rows with corrupt/invalid data are skipped and logged instead of crashing the entire query.
+    /// </summary>
+    private static async Task<List<BanRecord>> SafeQueryBansAsync(System.Data.IDbConnection connection, string sql, object? parameters = null)
+    {
+        var results = new List<BanRecord>();
+        var rawRows = await connection.QueryAsync(sql, parameters);
+
+        foreach (var row in rawRows)
+        {
+            try
+            {
+                var record = ParseBanRow(row);
+                if (record != null)
+                {
+                    results.Add(record);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the bad row and skip it - extract to typed locals to avoid dynamic dispatch issues
+                int rowId = -1;
+                try { rowId = (int)row.Id; } catch { /* ignore */ }
+
+                string steamIdStr = row.PlayerSteamId?.ToString() ?? "null";
+                string ipStr = row.PlayerIp?.ToString() ?? "null";
+                string nameStr = row.PlayerName?.ToString() ?? "null";
+                string statusStr = row.Status?.ToString() ?? "null";
+                string errorMsg = ex.Message;
+
+                CS2_SimpleAdmin._logger?.LogWarning(
+                    "[Cache] Skipped ban record (id={BanId}): {Error} | Raw data: steamid='{SteamId}', ip='{Ip}', name='{Name}', status='{Status}'",
+                    rowId, errorMsg, steamIdStr, ipStr, nameStr, statusStr);
+            }
+        }
+
+        return results;
+    }
+
+    /// <summary>
+    /// Parses a dynamic row into a BanRecord, handling empty strings and invalid data gracefully.
+    /// </summary>
+    private static BanRecord? ParseBanRow(dynamic row)
+    {
+        int rowId = (int)row.Id;
+
+        // Parse SteamID - handle null, empty string, and invalid values
+        ulong? playerSteamId = null;
+        string? rawSteamId = row.PlayerSteamId?.ToString();
+        if (!string.IsNullOrWhiteSpace(rawSteamId))
+        {
+            if (!ulong.TryParse(rawSteamId, out ulong parsedSteamId))
+            {
+                CS2_SimpleAdmin._logger?.LogWarning(
+                    "[Cache] Ban #{BanId}: Invalid player_steamid '{RawValue}', treating as null",
+                    rowId, rawSteamId);
+            }
+            else
+            {
+                playerSteamId = parsedSteamId;
+            }
+        }
+
+        // Parse PlayerIp - treat empty string as null
+        string? rawIp = row.PlayerIp?.ToString();
+        string? playerIp = string.IsNullOrWhiteSpace(rawIp) ? null : rawIp;
+
+        // Parse PlayerName - treat empty string as null
+        string? rawName = row.PlayerName?.ToString();
+        string? playerName = string.IsNullOrWhiteSpace(rawName) ? null : rawName;
+
+        // Parse Status
+        string? rawStatus = row.Status?.ToString();
+        if (string.IsNullOrWhiteSpace(rawStatus))
+        {
+            CS2_SimpleAdmin._logger?.LogWarning("[Cache] Ban #{BanId}: Empty status, skipping", rowId);
+            return null;
+        }
+
+        // Parse Created date
+        DateTime created = DateTime.MinValue;
+        try
+        {
+            if (row.Created != null)
+                created = (DateTime)row.Created;
+        }
+        catch
+        {
+            // If created column is missing or invalid, default to MinValue
+        }
+
+        return new BanRecord
+        {
+            Id = rowId,
+            PlayerName = playerName,
+            PlayerSteamId = playerSteamId,
+            PlayerIp = playerIp,
+            Status = rawStatus,
+            Created = created
+        };
+    }
+
+    /// <summary>
     /// Initializes and builds the ban and IP cache from the database. Loads bans, player IP history, and config settings.
     /// </summary>
     /// <returns>Asynchronous task representing the initialization process.</returns>
@@ -44,30 +147,32 @@ internal class CacheManager : IDisposable
 
             if (CS2_SimpleAdmin.Instance.Config.MultiServerMode)
             {
-                bans = (await connection.QueryAsync<BanRecord>(
+                bans = await SafeQueryBansAsync(connection,
                     """
                     SELECT 
                         id AS Id,
                         player_name AS PlayerName,
                         player_steamid AS PlayerSteamId,
                         player_ip AS PlayerIp,
-                        status AS Status 
+                        status AS Status,
+                        created AS Created
                     FROM sa_bans
-                    """)).ToList();
+                    """);
             }
             else
             {
-                bans = (await connection.QueryAsync<BanRecord>(
+                bans = await SafeQueryBansAsync(connection,
                     """
                     SELECT 
                         id AS Id,
                         player_name AS PlayerName,
                         player_steamid AS PlayerSteamId,
                         player_ip AS PlayerIp,
-                        status AS Status 
+                        status AS Status,
+                        created AS Created
                     FROM sa_bans
-                    WHERE server_id = @serverId
-                    """, new { serverId = CS2_SimpleAdmin.ServerId })).ToList();
+                    WHERE server_id = @serverId OR server_id IS NULL
+                    """, new { serverId = CS2_SimpleAdmin.ServerId });
             }
 
             if (CS2_SimpleAdmin.Instance.Config.OtherSettings.CheckMultiAccountsByIp)
@@ -117,6 +222,24 @@ internal class CacheManager : IDisposable
                 _banCache.TryAdd(ban.Id, ban);
 
             RebuildIndexes();
+
+            var activeBansCount = _banCache.Values.Count(b => b.StatusEnum == BanStatus.ACTIVE);
+            var totalBansCount = _banCache.Count;
+            var ipHistoryCount = _playerIpsCache.Count;
+
+            // Query active mute/gag/silence counts
+            var muteStats = await connection.QueryFirstOrDefaultAsync<(int TotalMutes, int TotalGags, int TotalSilences)>(
+                """
+                SELECT
+                    COUNT(CASE WHEN type = 'MUTE' AND status = 'ACTIVE' THEN 1 END) AS TotalMutes,
+                    COUNT(CASE WHEN type = 'GAG' AND status = 'ACTIVE' THEN 1 END) AS TotalGags,
+                    COUNT(CASE WHEN type = 'SILENCE' AND status = 'ACTIVE' THEN 1 END) AS TotalSilences
+                FROM sa_mutes
+                """);
+
+            CS2_SimpleAdmin._logger?.LogInformation(
+                "[Cache] Loaded {TotalBans} bans ({ActiveBans} active), {Mutes} active mutes, {Gags} active gags, {Silences} active silences, {IpHistory} IP history entries",
+                totalBansCount, activeBansCount, muteStats.TotalMutes, muteStats.TotalGags, muteStats.TotalSilences, ipHistoryCount);
 
             _lastUpdateTime = Time.ActualDateTime().AddSeconds(-1);
             _isInitialized = true;
@@ -171,17 +294,18 @@ internal class CacheManager : IDisposable
                 var lastCheckTime = _lastDatabaseTime ?? DateTime.MinValue;
 
                 // Get recently updated bans by timestamp (using database time to avoid timezone issues)
-                var updatedBans_Query = (await connection.QueryAsync<BanRecord>(
+                var updatedBans_Query = await SafeQueryBansAsync(connection,
                     """
                     SELECT id AS Id,
                     player_name AS PlayerName,
                     player_steamid AS PlayerSteamId,
                     player_ip AS PlayerIp,
-                    status AS Status
+                    status AS Status,
+                    created AS Created
                     FROM `sa_bans` WHERE updated_at > @lastUpdate OR created > @lastUpdate ORDER BY updated_at DESC
                     """,
                     new { lastUpdate = lastCheckTime }
-                )).ToList();
+                );
 
                 // Detect changes: new bans or status changes
                 var updatedList = new List<BanRecord>();
@@ -214,17 +338,18 @@ internal class CacheManager : IDisposable
                 var lastCheckTime = _lastDatabaseTime ?? DateTime.MinValue;
 
                 // Get recently updated bans for this server by timestamp (using database time to avoid timezone issues)
-                var updatedBans_Query = (await connection.QueryAsync<BanRecord>(
+                var updatedBans_Query = await SafeQueryBansAsync(connection,
                     """
                     SELECT id AS Id,
                     player_name AS PlayerName,
                     player_steamid AS PlayerSteamId,
                     player_ip AS PlayerIp,
-                    status AS Status
-                    FROM `sa_bans` WHERE server_id = @serverId AND (updated_at > @lastUpdate OR created > @lastUpdate) ORDER BY updated_at DESC
+                    status AS Status,
+                    created AS Created
+                    FROM `sa_bans` WHERE (server_id = @serverId OR server_id IS NULL) AND (updated_at > @lastUpdate OR created > @lastUpdate) ORDER BY updated_at DESC
                     """,
                     new { serverId = CS2_SimpleAdmin.ServerId, lastUpdate = lastCheckTime }
-                )).ToList();
+                );
 
                 // Detect changes: new bans or status changes
                 var updatedList = new List<BanRecord>();
@@ -245,7 +370,7 @@ internal class CacheManager : IDisposable
                 if (updatedList.Count > 0)
                 {
                     allIds = (await connection.QueryAsync<int>(
-                        "SELECT id FROM sa_bans WHERE server_id = @serverId",
+                        "SELECT id FROM sa_bans WHERE server_id = @serverId OR server_id IS NULL",
                         new { serverId = CS2_SimpleAdmin.ServerId }
                     )).ToHashSet();
                 }
@@ -391,6 +516,67 @@ internal class CacheManager : IDisposable
                 }
                 ipList.Add(ban);
             }
+        }
+    }
+    /// <summary>
+    /// Immediately adds a new ban record to the in-memory cache and rebuilds indexes.
+    /// This ensures the ban takes effect immediately without waiting for the next periodic cache refresh.
+    /// </summary>
+    /// <param name="banId">The database ID of the ban record.</param>
+    /// <param name="playerName">The banned player's name.</param>
+    /// <param name="playerSteamId">The banned player's SteamID64.</param>
+    /// <param name="playerIp">The banned player's IP address.</param>
+    public void AddBanToCache(int banId, string? playerName, ulong? playerSteamId, string? playerIp)
+    {
+        if (!_isInitialized) return;
+
+        var banRecord = new BanRecord
+        {
+            Id = banId,
+            PlayerName = playerName,
+            PlayerSteamId = playerSteamId,
+            PlayerIp = playerIp,
+            Status = "ACTIVE",
+            Created = Time.ActualDateTime()
+        };
+
+        _banCache.AddOrUpdate(banId, banRecord, (_, _) => banRecord);
+        RebuildIndexes();
+
+        CS2_SimpleAdmin._logger?.LogInformation(
+            "[Cache] Immediately added ban #{BanId} for SteamID={SteamId} IP={Ip} to cache",
+            banId, playerSteamId, playerIp ?? "N/A");
+    }
+
+    /// <summary>
+    /// Immediately marks a ban as unbanned in the in-memory cache and rebuilds indexes.
+    /// </summary>
+    /// <param name="playerPattern">Pattern to match (SteamID, name, or IP).</param>
+    public void RemoveBanFromCache(string playerPattern)
+    {
+        if (!_isInitialized) return;
+
+        var removed = false;
+        foreach (var ban in _banCache.Values)
+        {
+            if (ban.StatusEnum != BanStatus.ACTIVE) continue;
+
+            var matchesSteamId = ban.PlayerSteamId.HasValue && ban.PlayerSteamId.Value.ToString() == playerPattern;
+            var matchesName = ban.PlayerName != null && ban.PlayerName.Equals(playerPattern, StringComparison.OrdinalIgnoreCase);
+            var matchesIp = ban.PlayerIp != null && ban.PlayerIp == playerPattern;
+
+            if (!matchesSteamId && !matchesName && !matchesIp) continue;
+
+            // Create a new record with UNBANNED status
+            var unbannedRecord = ban with { Status = "UNBANNED" };
+            _banCache.AddOrUpdate(ban.Id, unbannedRecord, (_, _) => unbannedRecord);
+            removed = true;
+        }
+
+        if (removed)
+        {
+            RebuildIndexes();
+            CS2_SimpleAdmin._logger?.LogInformation("[Cache] Immediately removed ban for pattern '{Pattern}' from cache", playerPattern);
         }
     }
 
@@ -740,17 +926,17 @@ internal class CacheManager : IDisposable
         var baseSql = """
                           UPDATE sa_bans
                           SET 
-                              player_ip = COALESCE(player_ip, @PlayerIP),
-                              player_name = COALESCE(player_name, @PlayerName)
+                              player_ip = COALESCE(NULLIF(player_ip, ''), @PlayerIP),
+                              player_name = COALESCE(NULLIF(player_name, ''), @PlayerName)
                           WHERE 
                               (player_steamid = @PlayerSteamID OR player_ip = @PlayerIP)
                               AND status = 'ACTIVE'
-                              AND (duration = 0 OR ends > @CurrentTime)
+                              AND (duration = 0 OR ends IS NULL OR ends > @CurrentTime)
                       """;
 
         if (!CS2_SimpleAdmin.Instance.Config.MultiServerMode)
         {
-            baseSql += " AND server_id = @ServerId;";
+            baseSql += " AND (server_id = @ServerId OR server_id IS NULL);";
         }
 
         var parameters = new

@@ -102,21 +102,22 @@ public class MySqlDatabaseProvider(string connectionString) : IDatabaseProvider
         return multiServer ? """
                              UPDATE sa_bans
                              SET 
-                                 player_ip = COALESCE(player_ip, @PlayerIP),
-                                 player_name = COALESCE(player_name, @PlayerName)
+                                 player_ip = COALESCE(NULLIF(player_ip, ''), @PlayerIP),
+                                 player_name = COALESCE(NULLIF(player_name, ''), @PlayerName)
                              WHERE 
                                  (player_steamid = @PlayerSteamID OR player_ip = @PlayerIP)
                                  AND status = 'ACTIVE'
-                                 AND (duration = 0 OR ends > @CurrentTime)
+                                 AND (duration = 0 OR ends IS NULL OR ends > @CurrentTime)
                              """ : """
                                    UPDATE sa_bans
                                    SET 
-                                       player_ip = COALESCE(player_ip, @PlayerIP),
-                                       player_name = COALESCE(player_name, @PlayerName)
+                                       player_ip = COALESCE(NULLIF(player_ip, ''), @PlayerIP),
+                                       player_name = COALESCE(NULLIF(player_name, ''), @PlayerName)
                                    WHERE 
                                        (player_steamid = @PlayerSteamID OR player_ip = @PlayerIP)
                                        AND status = 'ACTIVE'
-                                       AND (duration = 0 OR ends > @CurrentTime) AND server_id = @ServerId
+                                       AND (duration = 0 OR ends IS NULL OR ends > @CurrentTime)
+                                       AND (server_id = @ServerId OR server_id IS NULL)
                                    """;
     }
 
@@ -236,9 +237,9 @@ public class MySqlDatabaseProvider(string connectionString) : IDatabaseProvider
     {
         return """
                    INSERT INTO `sa_bans` 
-                       (`player_steamid`, `admin_steamid`, `admin_name`, `reason`, `duration`, `ends`, `created`, `server_id`) 
+                       (`player_steamid`, `player_name`, `player_ip`, `admin_steamid`, `admin_name`, `reason`, `duration`, `ends`, `created`, `server_id`) 
                    VALUES 
-                       (@playerSteamid, @adminSteamid, @adminName, @banReason, @duration, @ends, @created, @serverid);
+                       (@playerSteamid, @playerName, @playerIp, @adminSteamid, @adminName, @banReason, @duration, @ends, @created, @serverid);
                    SELECT LAST_INSERT_ID();
                """;
     }
@@ -286,14 +287,14 @@ public class MySqlDatabaseProvider(string connectionString) : IDatabaseProvider
     {
         return multiServer
             ? "UPDATE sa_bans SET status = 'EXPIRED' WHERE status = 'ACTIVE' AND duration > 0 AND ends <= @currentTime"
-            : "UPDATE sa_bans SET status = 'EXPIRED' WHERE status = 'ACTIVE' AND duration > 0 AND ends <= @currentTime AND server_id = @serverid";
+            : "UPDATE sa_bans SET status = 'EXPIRED' WHERE status = 'ACTIVE' AND duration > 0 AND ends <= @currentTime AND (server_id = @serverid OR server_id IS NULL)";
     }
 
     public string GetExpireIpBansQuery(bool multiServer)
     {
         return multiServer
             ? "UPDATE sa_bans SET player_ip = NULL WHERE status = 'ACTIVE' AND ends <= @ipBansTime"
-            : "UPDATE sa_bans SET player_ip = NULL WHERE status = 'ACTIVE' AND ends <= @ipBansTime AND server_id = @serverid";
+            : "UPDATE sa_bans SET player_ip = NULL WHERE status = 'ACTIVE' AND ends <= @ipBansTime AND (server_id = @serverid OR server_id IS NULL)";
     }
 
     public string GetAddMuteQuery(bool includePlayerName) =>

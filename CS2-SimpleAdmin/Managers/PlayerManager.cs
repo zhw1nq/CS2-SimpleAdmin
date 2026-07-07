@@ -330,17 +330,20 @@ internal class PlayerManager
             {
                 try
                 {
-                    // Run all expire tasks in parallel
+                    // First expire old records in the database
                     var expireTasks = new[]
                     {
                         pluginInstance.BanManager.ExpireOldBans(),
                         pluginInstance.MuteManager.ExpireOldMutes(),
                         pluginInstance.WarnManager.ExpireOldWarns(),
-                        pluginInstance.CacheManager?.RefreshCacheAsync() ?? Task.CompletedTask,
                         pluginInstance.PermissionManager.DeleteOldAdmins()
                     };
 
                     await Task.WhenAll(expireTasks);
+
+                    // Then refresh cache with up-to-date data (must run after expiration)
+                    if (pluginInstance.CacheManager != null)
+                        await pluginInstance.CacheManager.RefreshCacheAsync();
                 }
                 catch (Exception ex)
                 {

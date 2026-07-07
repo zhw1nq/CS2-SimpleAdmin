@@ -43,6 +43,16 @@ internal class BanManager(IDatabaseProvider? databaseProvider)
                 serverid = CS2_SimpleAdmin.ServerId
             });
 
+            // Immediately update in-memory cache so the ban takes effect right away
+            if (banId.HasValue)
+            {
+                CS2_SimpleAdmin.Instance.CacheManager?.AddBanToCache(
+                    banId.Value,
+                    player.Name,
+                    player.SteamId.SteamId64,
+                    CS2_SimpleAdmin.Instance.Config.OtherSettings.BanType > 0 ? player.IpAddress : null);
+            }
+
             return banId;
         }
         catch(Exception ex)
@@ -59,8 +69,10 @@ internal class BanManager(IDatabaseProvider? databaseProvider)
     /// <param name="issuer">The admin issuing the ban. Can be null if issued from console.</param>
     /// <param name="reason">The reason for the ban.</param>
     /// <param name="time">Ban duration in minutes. If 0, the ban is permanent.</param>
+    /// <param name="playerName">Optional player name to store in the ban record.</param>
+    /// <param name="playerIp">Optional player IP to store in the ban record.</param>
     /// <returns>The ID of the newly created ban if successful, otherwise null.</returns>
-    public async Task<int?> AddBanBySteamid(ulong playerSteamId, PlayerInfo? issuer, string reason, int time = 0)
+    public async Task<int?> AddBanBySteamid(ulong playerSteamId, PlayerInfo? issuer, string reason, int time = 0, string? playerName = null, string? playerIp = null)
     {
         if (databaseProvider == null) return null;
 
@@ -74,6 +86,8 @@ internal class BanManager(IDatabaseProvider? databaseProvider)
             var banId = await connection.ExecuteScalarAsync<int?>(sql, new
             {
                 playerSteamid = playerSteamId,
+                playerName = string.IsNullOrEmpty(playerName) ? (string?)null : playerName,
+                playerIp = CS2_SimpleAdmin.Instance.Config.OtherSettings.BanType > 0 && !string.IsNullOrEmpty(playerIp) ? playerIp : (string?)null,
                 adminSteamid = issuer?.SteamId.SteamId64 ?? 0,
                 adminName = issuer?.Name ?? CS2_SimpleAdmin._localizer?["sa_console"] ?? "Console",
                 banReason = reason,
@@ -82,6 +96,17 @@ internal class BanManager(IDatabaseProvider? databaseProvider)
                 created = now,
                 serverid = CS2_SimpleAdmin.ServerId
             });
+
+            // Immediately update in-memory cache so the ban takes effect right away
+            if (banId.HasValue)
+            {
+                var storedIp = CS2_SimpleAdmin.Instance.Config.OtherSettings.BanType > 0 && !string.IsNullOrEmpty(playerIp) ? playerIp : null;
+                CS2_SimpleAdmin.Instance.CacheManager?.AddBanToCache(
+                    banId.Value,
+                    playerName,
+                    playerSteamId,
+                    storedIp);
+            }
             
             return banId;
         }
@@ -339,6 +364,9 @@ public async Task UnbanPlayer(string playerPattern, string adminSteamId, string 
             var sqlUpdateBan = databaseProvider.GetUpdateBanStatusQuery();
             await connection.ExecuteAsync(sqlUpdateBan, new { unbanId, banId });
         }
+
+        // Immediately update in-memory cache so the unban takes effect right away
+        CS2_SimpleAdmin.Instance.CacheManager?.RemoveBanFromCache(playerPattern);
     }
     catch { }
 }

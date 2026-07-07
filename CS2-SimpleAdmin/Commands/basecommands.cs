@@ -498,6 +498,43 @@ public partial class CS2_SimpleAdmin
     }
 
     /// <summary>
+    /// Clears all in-memory caches (bans, IPs, player info) and reinitializes from database.
+    /// </summary>
+    /// <param name="caller">The player issuing the command.</param>
+    /// <param name="command">Command input parameters.</param>
+    [CommandHelper(whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
+    [RequiresPermissions("@css/root")]
+    public void OnClearCacheCommand(CCSPlayerController? caller, CommandInfo command)
+    {
+        if (DatabaseProvider == null) return;
+
+        PlayersInfo.Clear();
+
+        Task.Run(async () =>
+        {
+            if (Instance.CacheManager != null)
+            {
+                await Instance.CacheManager.ForceReInitializeCacheAsync();
+            }
+
+            await Server.NextWorldUpdateAsync(() =>
+            {
+                // Re-load all connected players data
+                foreach (var player in Helper.GetValidPlayers())
+                {
+                    PlayerManager.LoadPlayerData(player, true);
+                }
+
+                var activeBans = Instance.CacheManager?.GetActiveBans().Count ?? 0;
+                var totalBans = Instance.CacheManager?.GetAllBans().Count ?? 0;
+
+                _logger?.LogInformation("[ClearCache] Cache cleared and reinitialized. Total bans: {TotalBans}, Active bans: {ActiveBans}", totalBans, activeBans);
+                command.ReplyToCommand($"Cache cleared and reinitialized. Total bans: {totalBans}, Active bans: {activeBans}");
+            });
+        });
+    }
+
+    /// <summary>
     /// Reloads admin data asynchronously and updates admin caches.
     /// </summary>
     /// <param name="caller">The player issuing the reload command.</param>
